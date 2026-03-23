@@ -246,6 +246,16 @@ select {
             </div>
           </div>
 
+          <!-- Monthly Website Visitors -->
+          <div>
+            <label class="block text-sm font-semibold text-on-surface-variant mb-3 ml-2">Monthly Website Visitors</label>
+            <div class="relative">
+              <input id="visitors" class="w-full bg-surface-container-highest border-none rounded-xl py-5 px-6 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline" placeholder="250,000" type="text" inputmode="numeric"/>
+              <span class="absolute right-6 top-5 text-outline material-symbols-outlined">public</span>
+            </div>
+            <p class="text-xs text-outline mt-2 ml-2" id="visitor-hint">Auto-estimated from customer base. Override if you know your traffic.</p>
+          </div>
+
           <!-- Media Spend -->
           <div>
             <label class="block text-sm font-semibold text-on-surface-variant mb-3 ml-2">Annual Media Spend</label>
@@ -310,6 +320,7 @@ select {
               <div>
                 <h3 class="text-sm font-bold uppercase tracking-widest text-primary mb-2">Projected Annual Benefit</h3>
                 <div id="total-benefit" class="text-[2.75rem] font-extrabold text-on-surface leading-none">$0</div>
+                <p id="cap-note" class="hidden text-xs text-outline mt-2">Capped at 15% of revenue for conservatism</p>
               </div>
               <div class="bg-secondary-fixed/30 px-6 py-4 rounded-xl">
                 <span class="block text-xs font-bold text-on-secondary-fixed mb-1">REVENUE UPLIFT</span>
@@ -495,17 +506,17 @@ select {
 <script>
 // ── Industry Benchmarks (from engine) ──
 const BENCHMARKS = {
-  retail:            { mediaPct: 0.05, convRate: 0.015, churnRate: 0.30, cac: 50,   arpc: 150   },
-  ecommerce:         { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 45,   arpc: 100   },
-  telecom:           { mediaPct: 0.035,convRate: 0.02,  churnRate: 0.15, cac: 200,  arpc: 500   },
-  insurance:         { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.12, cac: 400,  arpc: 1000  },
-  saas:              { mediaPct: 0.15, convRate: 0.035, churnRate: 0.08, cac: 500,  arpc: 5000  },
-  fmcg:              { mediaPct: 0.05, convRate: 0.015, churnRate: 0.40, cac: 25,   arpc: 60    },
-  automotive:        { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.20, cac: 1000, arpc: 15000 },
-  fitness_wellness:  { mediaPct: 0.06, convRate: 0.02,  churnRate: 0.35, cac: 54,   arpc: 565   },
-  beauty:            { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 30,   arpc: 60    },
-  media_publishing:  { mediaPct: 0.08, convRate: 0.03,  churnRate: 0.25, cac: 50,   arpc: 120   },
-  grocery:           { mediaPct: 0.02, convRate: 0.02,  churnRate: 0.30, cac: 15,   arpc: 3000  },
+  retail:            { mediaPct: 0.05, convRate: 0.015, churnRate: 0.30, cac: 50,   arpc: 150,   visitorMult: 3 },
+  ecommerce:         { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 45,   arpc: 100,   visitorMult: 5 },
+  telecom:           { mediaPct: 0.035,convRate: 0.02,  churnRate: 0.15, cac: 200,  arpc: 500,   visitorMult: 2 },
+  insurance:         { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.12, cac: 400,  arpc: 1000,  visitorMult: 2 },
+  saas:              { mediaPct: 0.15, convRate: 0.035, churnRate: 0.08, cac: 500,  arpc: 5000,  visitorMult: 2 },
+  fmcg:              { mediaPct: 0.05, convRate: 0.015, churnRate: 0.40, cac: 25,   arpc: 60,    visitorMult: 4 },
+  automotive:        { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.20, cac: 1000, arpc: 15000, visitorMult: 2 },
+  fitness_wellness:  { mediaPct: 0.06, convRate: 0.02,  churnRate: 0.35, cac: 54,   arpc: 565,   visitorMult: 3 },
+  beauty:            { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 30,   arpc: 60,    visitorMult: 4 },
+  media_publishing:  { mediaPct: 0.08, convRate: 0.03,  churnRate: 0.25, cac: 50,   arpc: 120,   visitorMult: 5 },
+  grocery:           { mediaPct: 0.02, convRate: 0.02,  churnRate: 0.30, cac: 15,   arpc: 3000,  visitorMult: 3 },
 };
 
 const SYMBOLS = { USD: '$', EUR: '\u20AC', GBP: '\u00A3' };
@@ -553,7 +564,9 @@ function formatInputValue(el) {
   }
 }
 
-['revenue', 'customers', 'mediaSpend'].forEach(id => {
+let visitorsManuallyEdited = false;
+
+['revenue', 'customers', 'mediaSpend', 'visitors'].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener('blur', () => formatInputValue(el));
   el.addEventListener('focus', () => {
@@ -563,6 +576,7 @@ function formatInputValue(el) {
 });
 
 document.getElementById('mediaSpend').addEventListener('input', () => { mediaManuallyEdited = true; });
+document.getElementById('visitors').addEventListener('input', () => { visitorsManuallyEdited = true; });
 
 // ── Industry Selection ──
 document.getElementById('industry').addEventListener('change', function() {
@@ -583,6 +597,14 @@ document.getElementById('industry').addEventListener('change', function() {
       document.getElementById('mediaSpend').value = fmtNum(media);
     }
   }
+
+  // Auto-fill visitors if not manually edited
+  if (!visitorsManuallyEdited) {
+    const customers = parseNum(document.getElementById('customers').value);
+    if (customers > 0) {
+      document.getElementById('visitors').value = fmtNum(Math.round(customers * b.visitorMult));
+    }
+  }
 });
 
 // Auto-fill media spend when revenue changes
@@ -594,6 +616,18 @@ document.getElementById('revenue').addEventListener('blur', function() {
   const revenue = parseNum(this.value);
   if (revenue > 0) {
     document.getElementById('mediaSpend').value = fmtNum(Math.round(revenue * b.mediaPct));
+  }
+});
+
+// Auto-fill visitors when customer base changes
+document.getElementById('customers').addEventListener('blur', function() {
+  if (visitorsManuallyEdited) return;
+  const industry = document.getElementById('industry').value;
+  const b = BENCHMARKS[industry];
+  if (!b) return;
+  const customers = parseNum(this.value);
+  if (customers > 0) {
+    document.getElementById('visitors').value = fmtNum(Math.round(customers * b.visitorMult));
   }
 });
 
@@ -627,15 +661,17 @@ function calculate() {
   // ── Model 1: Suppression (Acquire) ──
   const additionalSuppressed = customers * 0.08;
   const mediaSaving = additionalSuppressed * 1.50;
-  const newFromSuppression = mediaSaving / cac;
-  const suppressionRevenue = newFromSuppression * arpc;
+  const reinvestmentEfficiency = 0.50; // not all savings convert at benchmark CAC
+  const newFromSuppression = (mediaSaving * reinvestmentEfficiency) / cac;
+  const suppressionRevenue = newFromSuppression * arpc * 0.35; // first-year ramp
 
   // ── Model 2: Smart Retargeting (Acquire) ──
-  const uniqueUsers = customers * 10; // estimate
-  const currentRetargetable = uniqueUsers * 0.10;
-  const cdpRetargetable = uniqueUsers * 0.30;
+  const monthlyVisitors = parseNum(document.getElementById('visitors').value) || (customers * b.visitorMult);
+  const annualUniqueUsers = monthlyVisitors * 12 * 0.4; // ~40% unique across 12 months
+  const currentRetargetable = annualUniqueUsers * 0.10;
+  const cdpRetargetable = annualUniqueUsers * 0.25; // conservative vs old 0.30
   const incrementalRetarget = (cdpRetargetable - currentRetargetable) * convRate;
-  const retargetingRevenue = incrementalRetarget * arpc;
+  const retargetingRevenue = incrementalRetarget * arpc * 0.35; // first-year ramp
 
   // ── Model 3: Churn Defense (Retain) ──
   const customersRetained = customers * 0.005;
@@ -648,11 +684,18 @@ function calculate() {
   const customersUpsold = customersTargeted * convRate;
   const crossSellRevenue = customersUpsold * arpc * 0.15;
 
-  // ── Totals ──
-  const acquireTotal = suppressionRevenue + retargetingRevenue;
-  const retainTotal = churnBenefit;
-  const growTotal = crossSellRevenue;
-  const totalBenefit = acquireTotal + retainTotal + growTotal;
+  // ── Totals with revenue cap ──
+  const acquireRaw = suppressionRevenue + retargetingRevenue;
+  const retainRaw = churnBenefit;
+  const growRaw = crossSellRevenue;
+  const rawTotal = acquireRaw + retainRaw + growRaw;
+  const maxBenefit = revenue * 0.15;
+  const cappingApplied = rawTotal > maxBenefit;
+  const scaleFactor = cappingApplied ? maxBenefit / rawTotal : 1;
+  const acquireTotal = acquireRaw * scaleFactor;
+  const retainTotal = retainRaw * scaleFactor;
+  const growTotal = growRaw * scaleFactor;
+  const totalBenefit = cappingApplied ? maxBenefit : rawTotal;
   const revenueUpliftPct = revenue > 0 ? totalBenefit / revenue : 0;
 
   // ── Update UI ──
@@ -663,6 +706,8 @@ function calculate() {
 
   document.getElementById('total-benefit').textContent = fmt(totalBenefit);
   document.getElementById('revenue-uplift').textContent = '+' + fmtPct(revenueUpliftPct);
+  const capNote = document.getElementById('cap-note');
+  if (cappingApplied) { capNote.classList.remove('hidden'); } else { capNote.classList.add('hidden'); }
 
   // Bars (scale to max height of 200px)
   const maxVal = Math.max(acquireTotal, retainTotal, growTotal, 1);
@@ -676,21 +721,21 @@ function calculate() {
   document.getElementById('bar-retain-val').textContent = fmt(retainTotal);
   document.getElementById('bar-grow-val').textContent = fmt(growTotal);
 
-  // Metric cards
+  // Metric cards (scaled if capped)
   document.getElementById('metric-suppression').textContent = fmt(mediaSaving);
-  document.getElementById('metric-new-customers').textContent = fmtNum(Math.round(newFromSuppression + incrementalRetarget));
-  document.getElementById('metric-retained').textContent = fmtNum(Math.round(customersRetained));
-  document.getElementById('metric-crosssell').textContent = fmt(crossSellRevenue);
+  document.getElementById('metric-new-customers').textContent = fmtNum(Math.round((newFromSuppression + incrementalRetarget) * scaleFactor));
+  document.getElementById('metric-retained').textContent = fmtNum(Math.round(customersRetained * scaleFactor));
+  document.getElementById('metric-crosssell').textContent = fmt(crossSellRevenue * scaleFactor);
 
-  // ── Breakdown Table ──
+  // ── Breakdown Table (scaled if capped) ──
   const useCases = [
-    { name: 'Audience Suppression', cat: 'Acquire', color: 'acquire', val: suppressionRevenue, conf: 90,
+    { name: 'Audience Suppression', cat: 'Acquire', color: 'acquire', val: suppressionRevenue * scaleFactor, conf: 90,
       desc: 'Save media spend by suppressing existing customers from acquisition campaigns' },
-    { name: 'Smart Retargeting', cat: 'Acquire', color: 'acquire', val: retargetingRevenue, conf: 85,
+    { name: 'Smart Retargeting', cat: 'Acquire', color: 'acquire', val: retargetingRevenue * scaleFactor, conf: 85,
       desc: 'Reach more high-intent visitors with improved identity matching' },
-    { name: 'Churn Defense', cat: 'Retain', color: 'retain', val: churnBenefit, conf: 80,
+    { name: 'Churn Defense', cat: 'Retain', color: 'retain', val: churnBenefit * scaleFactor, conf: 80,
       desc: 'Retain at-risk customers through data-driven lifecycle management' },
-    { name: 'Cross-Sell / Upsell', cat: 'Grow', color: 'grow', val: crossSellRevenue, conf: 75,
+    { name: 'Cross-Sell / Upsell', cat: 'Grow', color: 'grow', val: crossSellRevenue * scaleFactor, conf: 75,
       desc: 'Increase customer value with personalised cross-sell recommendations' },
   ];
 
