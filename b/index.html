@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zeotap CDP — Business Case Calculator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-tertiary-container":"#b9c7f0","surface-container":"#f0eded","on-background":"#1b1c1c",
+        "surface-container-highest":"#e4e2e1","on-secondary-fixed-variant":"#31476b","surface-dim":"#dcd9d9",
+        "outline-variant":"#c4c5d8","surface-tint":"#1f4aeb","on-surface-variant":"#444656",
+        "on-primary":"#ffffff","primary":"#002baa","tertiary-fixed":"#d9e2ff","inverse-surface":"#303030",
+        "tertiary-fixed-dim":"#b8c6ee","on-tertiary":"#ffffff","surface-container-high":"#eae7e7",
+        "on-secondary-container":"#445a7f","on-tertiary-fixed":"#0b1a3a","primary-fixed-dim":"#b9c3ff",
+        "surface-container-low":"#f6f3f2","on-primary-fixed":"#001258","on-error-container":"#93000a",
+        "inverse-primary":"#b9c3ff","secondary":"#495f84","primary-fixed":"#dee1ff","surface":"#fbf9f8",
+        "on-tertiary-fixed-variant":"#384668","secondary-container":"#bcd2fe","on-secondary":"#ffffff",
+        "on-primary-fixed-variant":"#0032c2","tertiary-container":"#455375","surface-variant":"#e4e2e1",
+        "on-secondary-fixed":"#001b3d","outline":"#747687","tertiary":"#2e3c5d","surface-bright":"#fbf9f8",
+        "surface-container-lowest":"#ffffff","on-primary-container":"#bcc5ff","primary-container":"#043de1",
+        "secondary-fixed-dim":"#b1c7f2","on-surface":"#1b1c1c","error":"#ba1a1a","secondary-fixed":"#d6e3ff",
+        "background":"#fbf9f8","on-error":"#ffffff","inverse-on-surface":"#f3f0f0","error-container":"#ffdad6"
+      },
+      fontFamily: {"headline":["Inter"],"body":["Inter"],"label":["Inter"]},
+      borderRadius: {"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .signature-gradient { background: linear-gradient(135deg, #002baa 0%, #043de1 100%); }
+  .ambient-shadow { box-shadow: 0px 20px 40px rgba(0, 27, 61, 0.06); }
+
+  /* Step transitions */
+  .step-panel { display: none; opacity: 0; transform: translateX(30px); }
+  .step-panel.active { display: block; animation: slideIn 0.4s ease-out forwards; }
+  .step-panel.slide-out { display: block; animation: slideOut 0.25s ease-in forwards; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-30px); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.5s ease-out forwards; }
+  .fade-up-1 { animation-delay: 0.1s; opacity: 0; }
+  .fade-up-2 { animation-delay: 0.2s; opacity: 0; }
+  .fade-up-3 { animation-delay: 0.3s; opacity: 0; }
+  .bar-transition { transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /* Range sliders */
+  input[type="range"] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #e4e2e1; outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #002baa; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,27,61,0.25); transition: transform 0.15s; }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #002baa; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,27,61,0.25); }
+
+  /* Number input spinners */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  /* Industry selector cards */
+  .industry-card { transition: all 0.2s; cursor: pointer; }
+  .industry-card:hover { border-color: #002baa; background: #f6f3f2; }
+  .industry-card.selected { border-color: #002baa; background: #dee1ff; box-shadow: 0 0 0 2px #002baa; }
+
+  /* Progress dots */
+  .dot { transition: all 0.3s; }
+  .dot.active { background: #002baa; width: 24px; border-radius: 12px; }
+  .dot.completed { background: #002baa; }
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
+
+<!-- Nav -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
+  <div class="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
+    <div class="text-2xl font-bold tracking-tight text-blue-900">Zeotap CDP</div>
+    <div class="flex items-center space-x-4">
+      <button class="text-slate-600 font-medium hover:opacity-80 transition-opacity px-4 py-2">Login</button>
+      <button class="signature-gradient text-white px-6 py-2.5 rounded-full font-semibold hover:opacity-90 active:scale-95 duration-150 shadow-lg shadow-primary/20">Get Started</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="flex-1 pt-20 flex items-center justify-center px-8 py-12">
+  <div class="w-full max-w-2xl">
+
+    <!-- Progress -->
+    <div class="flex items-center justify-center gap-3 mb-10">
+      <div id="dot-1" class="dot w-3 h-3 rounded-full bg-primary active"></div>
+      <div class="w-12 h-0.5 bg-surface-container-highest rounded-full overflow-hidden">
+        <div id="prog-1" class="h-full bg-primary rounded-full transition-all duration-500" style="width:0%"></div>
+      </div>
+      <div id="dot-2" class="dot w-3 h-3 rounded-full bg-surface-container-highest"></div>
+      <div class="w-12 h-0.5 bg-surface-container-highest rounded-full overflow-hidden">
+        <div id="prog-2" class="h-full bg-primary rounded-full transition-all duration-500" style="width:0%"></div>
+      </div>
+      <div id="dot-3" class="dot w-3 h-3 rounded-full bg-surface-container-highest"></div>
+    </div>
+
+    <!-- ═══ STEP 1: Industry & Currency ═══ -->
+    <div id="step-1" class="step-panel active">
+      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-10">
+        <div class="text-center mb-8">
+          <span class="inline-block px-4 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold tracking-widest uppercase mb-4">Step 1 of 3</span>
+          <h2 class="text-3xl font-bold mb-2">Tell us about your business</h2>
+          <p class="text-on-surface-variant">Select your industry so we can tailor the analysis.</p>
+        </div>
+
+        <!-- Industry Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8" id="industry-grid">
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="retail">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">storefront</span>
+            <span class="text-sm font-semibold">Retail</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="ecommerce">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">shopping_cart</span>
+            <span class="text-sm font-semibold">E-Commerce</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="telecom">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">cell_tower</span>
+            <span class="text-sm font-semibold">Telecom</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="insurance">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">shield</span>
+            <span class="text-sm font-semibold">Insurance</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="saas">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">cloud</span>
+            <span class="text-sm font-semibold">SaaS / Tech</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="fmcg">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">inventory_2</span>
+            <span class="text-sm font-semibold">FMCG / CPG</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="automotive">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">directions_car</span>
+            <span class="text-sm font-semibold">Automotive</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="fitness_wellness">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">fitness_center</span>
+            <span class="text-sm font-semibold">Fitness</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="beauty">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">spa</span>
+            <span class="text-sm font-semibold">Beauty</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="media_publishing">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">newspaper</span>
+            <span class="text-sm font-semibold">Media</span>
+          </div>
+          <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-4 text-center" data-value="grocery">
+            <span class="material-symbols-outlined text-2xl text-primary mb-1 block">local_grocery_store</span>
+            <span class="text-sm font-semibold">Grocery</span>
+          </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-on-surface-variant mb-3">Currency</label>
+          <div class="flex gap-2">
+            <button onclick="setCurrency('USD')" id="btn-USD" class="flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high">$ USD</button>
+            <button onclick="setCurrency('EUR')" id="btn-EUR" class="flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-primary text-white">&#8364; EUR</button>
+            <button onclick="setCurrency('GBP')" id="btn-GBP" class="flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high">&#163; GBP</button>
+          </div>
+        </div>
+
+        <button id="btn-next-1" onclick="goToStep(2)" disabled class="w-full signature-gradient text-white py-4 rounded-full font-bold text-lg ambient-shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2">
+          Continue <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 2: Metrics ═══ -->
+    <div id="step-2" class="step-panel">
+      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-10">
+        <div class="text-center mb-8">
+          <span class="inline-block px-4 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold tracking-widest uppercase mb-4">Step 2 of 3</span>
+          <h2 class="text-3xl font-bold mb-2">Enter your key metrics</h2>
+          <p class="text-on-surface-variant">We'll use these to calculate the projected value.</p>
+        </div>
+
+        <!-- Revenue -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-on-surface-variant mb-3">Annual Revenue</label>
+          <div class="relative">
+            <span id="s2-rev-symbol" class="absolute left-6 top-5 text-lg text-outline font-medium">&#8364;</span>
+            <input id="s2-revenue" class="w-full bg-surface-container-highest border-none rounded-xl py-5 pl-12 pr-6 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline" placeholder="100,000,000" type="text" inputmode="numeric"/>
+          </div>
+          <input id="s2-revenue-slider" type="range" min="1000000" max="2000000000" step="5000000" value="100000000" class="w-full mt-3"/>
+        </div>
+
+        <!-- Customers -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-on-surface-variant mb-3" id="s2-label-customers">Customer / Member Base</label>
+          <div class="relative">
+            <input id="s2-customers" class="w-full bg-surface-container-highest border-none rounded-xl py-5 px-6 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline" placeholder="500,000" type="text" inputmode="numeric"/>
+            <span class="absolute right-6 top-5 text-outline material-symbols-outlined">group</span>
+          </div>
+          <input id="s2-customers-slider" type="range" min="10000" max="20000000" step="10000" value="500000" class="w-full mt-3"/>
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="goToStep(1)" class="flex-1 py-4 rounded-full font-bold text-lg border-2 border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">arrow_back</span> Back
+          </button>
+          <button id="btn-calculate" onclick="goToStep(3)" disabled class="flex-[2] signature-gradient text-white py-4 rounded-full font-bold text-lg ambient-shadow hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">bolt</span> Calculate My ROI
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STEP 3: Results ═══ -->
+    <div id="step-3" class="step-panel">
+
+      <!-- Edit Inputs (collapsible) -->
+      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 mb-6 overflow-hidden">
+        <button onclick="toggleEditInputs()" class="w-full flex items-center justify-between px-8 py-5 hover:bg-surface-container-low/50 transition-colors">
+          <span class="text-sm font-semibold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-lg text-primary">tune</span>
+            Edit Inputs
+          </span>
+          <span class="material-symbols-outlined text-lg text-outline transition-transform" id="edit-chevron">expand_more</span>
+        </button>
+        <div id="edit-panel" class="hidden px-8 pb-6 border-t border-outline-variant/10">
+          <div class="grid grid-cols-2 gap-4 pt-4">
+            <div>
+              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-arpc">ARPC</label>
+              <input id="s3-arpc" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-cac">CAC</label>
+              <input id="s3-cac" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-outline mb-1">Churn Rate (%)</label>
+              <input id="s3-churn" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-outline mb-1">Conv. Rate (%)</label>
+              <input id="s3-conv" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
+            </div>
+          </div>
+          <p class="text-xs text-outline mt-3">ARPC is calculated from your revenue and base. Override any value to customise.</p>
+        </div>
+      </div>
+
+      <!-- Results Card -->
+      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-10">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 fade-up">
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-widest text-primary mb-2">Projected Annual Benefit</h3>
+            <div id="r-total" class="text-[2.75rem] font-extrabold text-on-surface leading-none">&#8364;0</div>
+          </div>
+          <div class="bg-secondary-fixed/30 px-6 py-4 rounded-xl">
+            <span class="block text-xs font-bold text-on-secondary-fixed mb-1">REVENUE UPLIFT</span>
+            <span id="r-uplift" class="text-2xl font-bold text-primary">+0%</span>
+          </div>
+        </div>
+
+        <!-- Bars -->
+        <div class="h-48 flex items-end gap-4 mb-10 fade-up fade-up-1">
+          <div class="flex-1 space-y-2">
+            <div id="r-bar-acquire" class="w-full signature-gradient rounded-t-lg bar-transition" style="height:0px"></div>
+            <span class="block text-center text-xs font-medium text-on-surface-variant">Acquire</span>
+            <span id="r-bar-acquire-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div id="r-bar-retain" class="w-full bg-secondary-container rounded-t-lg bar-transition" style="height:0px"></div>
+            <span class="block text-center text-xs font-medium text-on-surface-variant">Retain</span>
+            <span id="r-bar-retain-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div id="r-bar-grow" class="w-full bg-tertiary-container rounded-t-lg bar-transition" style="height:0px"></div>
+            <span class="block text-center text-xs font-medium text-on-surface-variant">Grow</span>
+            <span id="r-bar-grow-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+          </div>
+        </div>
+
+        <!-- Stat Tiles -->
+        <div class="grid grid-cols-2 gap-4 mb-10 fade-up fade-up-2">
+          <div class="p-4 bg-surface rounded-lg">
+            <span class="block text-xs font-medium text-outline mb-1">Media Savings</span>
+            <span id="r-savings" class="text-lg font-bold text-on-surface">&#8364;0</span>
+          </div>
+          <div class="p-4 bg-surface rounded-lg">
+            <span class="block text-xs font-medium text-outline mb-1" id="r-label-new">New Customers</span>
+            <span id="r-new" class="text-lg font-bold text-on-surface">0</span>
+          </div>
+          <div class="p-4 bg-surface rounded-lg">
+            <span class="block text-xs font-medium text-outline mb-1" id="r-label-retained">Customers Retained</span>
+            <span id="r-retained" class="text-lg font-bold text-on-surface">0</span>
+          </div>
+          <div class="p-4 bg-surface rounded-lg">
+            <span class="block text-xs font-medium text-outline mb-1">Cross-Sell Revenue</span>
+            <span id="r-crosssell" class="text-lg font-bold text-on-surface">&#8364;0</span>
+          </div>
+        </div>
+
+        <!-- Use Case Breakdown -->
+        <div class="mb-10 fade-up fade-up-3">
+          <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Use Case Breakdown</h4>
+          <div id="r-usecases" class="space-y-3"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center pt-6 border-t border-outline-variant/10 fade-up fade-up-3">
+          <p class="text-on-surface-variant mb-4">Want a detailed breakdown with scenario comparisons?</p>
+          <a href="#" class="signature-gradient text-white px-8 py-4 rounded-full font-bold inline-flex items-center gap-2 hover:opacity-90 active:scale-95 duration-150 shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined">calendar_month</span>
+            Book a Demo
+          </a>
+          <div class="mt-4">
+            <button onclick="goToStep(1)" class="text-sm text-primary font-medium hover:opacity-80 transition-opacity">
+              ← Start Over
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-slate-50 border-t border-slate-200">
+  <div class="flex flex-col md:flex-row justify-between items-center px-8 py-8 max-w-7xl mx-auto text-sm text-slate-500">
+    <div><span class="font-bold text-slate-900">Zeotap CDP</span> &copy; 2025 Zeotap GmbH</div>
+    <div class="flex gap-6 mt-4 md:mt-0">
+      <a class="hover:text-blue-600 hover:underline" href="#">Privacy</a>
+      <a class="hover:text-blue-600 hover:underline" href="#">Terms</a>
+      <a class="hover:text-blue-600 hover:underline" href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+//  BENCHMARKS (identical to A version)
+// ═══════════════════════════════════════
+const BENCHMARKS = {
+  retail:           { mediaPct:0.05, convRate:0.015, churnRate:0.30, cac:50,   arpc:150,   visitorMult:3,  entity:'Customer', entityPlural:'Customers', revenueMetric:'ARPC', acqCost:'CAC', baseLabel:'Registered Customers', retainName:'Customer Retention', retainDesc:'Re-engage at-risk customers through personalised lifecycle campaigns', growDesc:'Cross-sell complementary categories based on purchase history' },
+  ecommerce:        { mediaPct:0.08, convRate:0.02,  churnRate:0.35, cac:45,   arpc:100,   visitorMult:5,  entity:'Customer', entityPlural:'Customers', revenueMetric:'ARPC', acqCost:'CAC', baseLabel:'Registered Customers', retainName:'Customer Retention', retainDesc:'Re-engage inactive customers before they lapse with omni-channel outreach', growDesc:'Recommend complementary products to increase basket size and order frequency' },
+  telecom:          { mediaPct:0.035,convRate:0.02,  churnRate:0.15, cac:200,  arpc:500,   visitorMult:2,  entity:'Subscriber', entityPlural:'Subscribers', revenueMetric:'ARPU', acqCost:'SAC', baseLabel:'Active Subscribers', retainName:'Churn Prevention', retainDesc:'Identify contract-end churn risk and engage with targeted retention offers', growDesc:'Upsell data add-ons, device insurance, and family plans to existing subscribers' },
+  insurance:        { mediaPct:0.04, convRate:0.01,  churnRate:0.12, cac:400,  arpc:1000,  visitorMult:2,  entity:'Policyholder', entityPlural:'Policyholders', revenueMetric:'ARPP', acqCost:'PAC', baseLabel:'Active Policyholders', retainName:'Policy Retention', retainDesc:'Engage policyholders approaching renewal with personalised retention offers', growDesc:'Cross-sell additional policy types to existing policyholders (e.g. home to auto)' },
+  saas:             { mediaPct:0.15, convRate:0.035, churnRate:0.08, cac:500,  arpc:5000,  visitorMult:2,  entity:'User', entityPlural:'Users', revenueMetric:'ARPU', acqCost:'CAC', baseLabel:'Paying Users', retainName:'Churn Prevention', retainDesc:'Detect product usage dropoff and trigger proactive customer success outreach', growDesc:'Identify expansion-ready accounts and drive tier upgrades or add-on adoption' },
+  fmcg:             { mediaPct:0.05, convRate:0.015, churnRate:0.40, cac:25,   arpc:60,    visitorMult:4,  entity:'Consumer', entityPlural:'Consumers', revenueMetric:'ARPC', acqCost:'CAC', baseLabel:'Registered Consumers', retainName:'Brand Loyalty', retainDesc:'Prevent brand switching by re-engaging consumers with personalised category campaigns', growDesc:'Cross-sell complementary product categories to registered consumers' },
+  automotive:       { mediaPct:0.04, convRate:0.01,  churnRate:0.20, cac:1000, arpc:15000, visitorMult:2,  entity:'Buyer', entityPlural:'Buyers', revenueMetric:'ARPC', acqCost:'LAC', baseLabel:'CRM Contacts', retainName:'Owner Retention', retainDesc:'Keep existing owners in your brand ecosystem for their next vehicle purchase', growDesc:'Upsell aftersales services, accessories, and financing products to existing owners' },
+  fitness_wellness: { mediaPct:0.06, convRate:0.02,  churnRate:0.35, cac:54,   arpc:565,   visitorMult:3,  entity:'Member', entityPlural:'Members', revenueMetric:'ARPM', acqCost:'MAC', baseLabel:'Active Members', retainName:'Member Retention', retainDesc:'Identify declining visit frequency and trigger re-engagement before cancellation', growDesc:'Upsell personal training, premium tiers, and nutrition plans to active members' },
+  beauty:           { mediaPct:0.08, convRate:0.02,  churnRate:0.35, cac:30,   arpc:60,    visitorMult:4,  entity:'Customer', entityPlural:'Customers', revenueMetric:'ARPC', acqCost:'CAC', baseLabel:'Registered Customers', retainName:'Customer Retention', retainDesc:'Re-engage lapsing beauty customers with personalised replenishment and loyalty campaigns', growDesc:'Cross-sell skincare, fragrance, and wellness products based on purchase patterns' },
+  media_publishing: { mediaPct:0.08, convRate:0.03,  churnRate:0.25, cac:50,   arpc:120,   visitorMult:5,  entity:'Subscriber', entityPlural:'Subscribers', revenueMetric:'ARPU', acqCost:'SAC', baseLabel:'Paid Subscribers', retainName:'Subscriber Retention', retainDesc:'Re-engage subscribers with declining content consumption before they cancel', growDesc:'Upsell premium tiers, bundled content, and event access to engaged subscribers' },
+  grocery:          { mediaPct:0.02, convRate:0.02,  churnRate:0.30, cac:15,   arpc:3000,  visitorMult:3,  entity:'Shopper', entityPlural:'Shoppers', revenueMetric:'ARPC', acqCost:'SAC', baseLabel:'Loyalty Card Holders', retainName:'Loyalty Retention', retainDesc:'Re-engage lapsing loyalty card holders before they drift to competitors', growDesc:'Increase basket size by recommending complementary categories to loyalty shoppers' },
+};
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+const SYMBOLS = { USD: '$', EUR: '\u20AC', GBP: '\u00A3' };
+let currency = 'EUR';
+let selectedIndustry = '';
+let arpcManuallyEdited = false;
+let currentStep = 1;
+
+// ═══════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════
+function parseNum(str) { return parseFloat(String(str).replace(/[^0-9.]/g, '')) || 0; }
+function fmt(n) { return new Intl.NumberFormat('en-US', { style:'currency', currency, maximumFractionDigits:0 }).format(n); }
+function fmtNum(n) { return new Intl.NumberFormat('en-US', { maximumFractionDigits:0 }).format(n); }
+function fmtPct(n) { return (n * 100).toFixed(1) + '%'; }
+function formatInputValue(el) { const raw = parseNum(el.value); if (raw > 0) el.value = fmtNum(raw); }
+
+// ═══════════════════════════════════════
+//  CURRENCY
+// ═══════════════════════════════════════
+function setCurrency(c) {
+  currency = c;
+  ['USD','EUR','GBP'].forEach(k => {
+    const btn = document.getElementById('btn-' + k);
+    btn.className = k === c
+      ? 'flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-primary text-white'
+      : 'flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high';
+  });
+  document.getElementById('s2-rev-symbol').textContent = SYMBOLS[c];
+  if (currentStep === 3) calculate();
+}
+
+// ═══════════════════════════════════════
+//  INDUSTRY SELECTION
+// ═══════════════════════════════════════
+document.querySelectorAll('.industry-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.industry-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedIndustry = card.dataset.value;
+    document.getElementById('btn-next-1').disabled = false;
+
+    // Update step 2 labels
+    const b = BENCHMARKS[selectedIndustry];
+    document.getElementById('s2-label-customers').textContent = b.baseLabel;
+
+    // Pre-fill assumptions
+    document.getElementById('s3-churn').value = (b.churnRate * 100).toFixed(1);
+    document.getElementById('s3-cac').value = b.cac;
+    document.getElementById('s3-arpc').value = b.arpc;
+    document.getElementById('s3-conv').value = (b.convRate * 100).toFixed(1);
+    document.getElementById('s3-label-arpc').textContent = b.revenueMetric;
+    document.getElementById('s3-label-cac').textContent = b.acqCost;
+    document.getElementById('r-label-new').textContent = 'New ' + b.entityPlural;
+    document.getElementById('r-label-retained').textContent = b.entityPlural + ' Retained';
+    arpcManuallyEdited = false;
+  });
+});
+
+// ═══════════════════════════════════════
+//  STEP 2 INPUT HANDLING
+// ═══════════════════════════════════════
+['s2-revenue', 's2-customers'].forEach(id => {
+  const el = document.getElementById(id);
+  const slider = document.getElementById(id + '-slider');
+  el.addEventListener('blur', () => { formatInputValue(el); updateCalcButton(); });
+  el.addEventListener('focus', () => { const raw = parseNum(el.value); if (raw > 0) el.value = raw; });
+  el.addEventListener('input', () => { const raw = parseNum(el.value); if (raw > 0) slider.value = raw; updateCalcButton(); });
+  slider.addEventListener('input', () => { el.value = fmtNum(parseInt(slider.value)); updateCalcButton(); });
+});
+
+function updateCalcButton() {
+  const rev = parseNum(document.getElementById('s2-revenue').value);
+  const cust = parseNum(document.getElementById('s2-customers').value);
+  document.getElementById('btn-calculate').disabled = !(rev > 0 && cust > 0);
+}
+
+// ═══════════════════════════════════════
+//  STEP 3 ASSUMPTION EDITING
+// ═══════════════════════════════════════
+document.getElementById('s3-arpc').addEventListener('input', () => { arpcManuallyEdited = true; calculate(); });
+['s3-cac', 's3-churn', 's3-conv'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { calculate(); });
+});
+
+function toggleEditInputs() {
+  const panel = document.getElementById('edit-panel');
+  const chevron = document.getElementById('edit-chevron');
+  panel.classList.toggle('hidden');
+  chevron.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+}
+
+// ═══════════════════════════════════════
+//  STEP NAVIGATION
+// ═══════════════════════════════════════
+function goToStep(step) {
+  const prev = document.getElementById('step-' + currentStep);
+  prev.classList.remove('active');
+  prev.classList.add('slide-out');
+
+  setTimeout(() => {
+    prev.classList.remove('slide-out');
+    prev.style.display = 'none';
+    currentStep = step;
+    const next = document.getElementById('step-' + step);
+    next.classList.add('active');
+
+    // Update progress
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('active', 'completed');
+      if (i < step) dot.classList.add('completed');
+      else if (i === step) dot.classList.add('active');
+    }
+    document.getElementById('prog-1').style.width = step >= 2 ? '100%' : '0%';
+    document.getElementById('prog-2').style.width = step >= 3 ? '100%' : '0%';
+
+    // Calculate on reaching step 3
+    if (step === 3) {
+      deriveARPC();
+      calculate();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 250);
+}
+
+// ═══════════════════════════════════════
+//  DERIVE ARPC
+// ═══════════════════════════════════════
+function deriveARPC() {
+  if (arpcManuallyEdited) return;
+  const rev = parseNum(document.getElementById('s2-revenue').value);
+  const cust = parseNum(document.getElementById('s2-customers').value);
+  if (rev > 0 && cust > 0) {
+    document.getElementById('s3-arpc').value = Math.round(rev / cust);
+  }
+}
+
+// ═══════════════════════════════════════
+//  CALCULATE (identical models to A)
+// ═══════════════════════════════════════
+function calculate() {
+  if (!selectedIndustry) return;
+  const b = BENCHMARKS[selectedIndustry];
+  const revenue = parseNum(document.getElementById('s2-revenue').value);
+  const customers = parseNum(document.getElementById('s2-customers').value);
+  if (revenue <= 0 || customers <= 0) return;
+
+  const churnRate = (parseFloat(document.getElementById('s3-churn').value) || (b.churnRate * 100)) / 100;
+  const cac = parseFloat(document.getElementById('s3-cac').value) || b.cac;
+  const arpc = parseFloat(document.getElementById('s3-arpc').value) || b.arpc;
+  const convRate = (parseFloat(document.getElementById('s3-conv').value) || (b.convRate * 100)) / 100;
+  const uniqueUsers = customers * b.visitorMult;
+
+  // Model 1: Suppression
+  const additionalSuppressed = customers * 0.08;
+  const mediaSaving = additionalSuppressed * 1.50;
+  const newFromSuppression = mediaSaving / cac;
+  const suppressionRevenue = mediaSaving;
+
+  // Model 2: Smart Retargeting
+  const incrementalRetarget = uniqueUsers * 0.20 * convRate;
+  const retargetingRevenue = incrementalRetarget * arpc * 0.10;
+
+  // Model 3: Churn Defense
+  const customersRetained = customers * churnRate * 0.02;
+  const reacquisitionSavings = customersRetained * cac;
+  const revenueRetained = customersRetained * arpc * 0.5;
+  const churnBenefit = reacquisitionSavings + revenueRetained;
+
+  // Model 4: Cross-Sell
+  const customersUpsold = customers * 0.20 * convRate;
+  const crossSellRevenue = customersUpsold * arpc * 0.10;
+
+  // Totals
+  const acquireTotal = suppressionRevenue + retargetingRevenue;
+  const retainTotal = churnBenefit;
+  const growTotal = crossSellRevenue;
+  const totalBenefit = acquireTotal + retainTotal + growTotal;
+  const upliftPct = totalBenefit / revenue;
+
+  // Update UI
+  document.getElementById('r-total').textContent = fmt(totalBenefit);
+  document.getElementById('r-uplift').textContent = '+' + fmtPct(upliftPct);
+
+  const maxVal = Math.max(acquireTotal, retainTotal, growTotal, 1);
+  const scale = 160 / maxVal;
+  requestAnimationFrame(() => {
+    document.getElementById('r-bar-acquire').style.height = Math.max(4, acquireTotal * scale) + 'px';
+    document.getElementById('r-bar-retain').style.height = Math.max(4, retainTotal * scale) + 'px';
+    document.getElementById('r-bar-grow').style.height = Math.max(4, growTotal * scale) + 'px';
+  });
+  document.getElementById('r-bar-acquire-val').textContent = fmt(acquireTotal);
+  document.getElementById('r-bar-retain-val').textContent = fmt(retainTotal);
+  document.getElementById('r-bar-grow-val').textContent = fmt(growTotal);
+
+  document.getElementById('r-savings').textContent = fmt(mediaSaving);
+  document.getElementById('r-new').textContent = fmtNum(Math.round(newFromSuppression + incrementalRetarget));
+  document.getElementById('r-retained').textContent = fmtNum(Math.round(customersRetained));
+  document.getElementById('r-crosssell').textContent = fmt(crossSellRevenue);
+
+  // Use case cards
+  const useCases = [
+    { name: 'Audience Suppression', cat: 'Acquire', catBg: 'bg-primary-fixed', catText: 'text-primary', val: suppressionRevenue,
+      desc: 'Save media spend by suppressing existing ' + b.entityPlural.toLowerCase() + ' from acquisition campaigns' },
+    { name: 'Smart Retargeting', cat: 'Acquire', catBg: 'bg-primary-fixed', catText: 'text-primary', val: retargetingRevenue,
+      desc: 'Reach more high-intent visitors with improved identity matching' },
+    { name: b.retainName, cat: 'Retain', catBg: 'bg-secondary-fixed', catText: 'text-secondary', val: churnBenefit,
+      desc: b.retainDesc },
+    { name: 'Cross-Sell / Upsell', cat: 'Grow', catBg: 'bg-tertiary-fixed', catText: 'text-tertiary', val: crossSellRevenue,
+      desc: b.growDesc },
+  ];
+
+  document.getElementById('r-usecases').innerHTML = useCases.map(uc => `
+    <div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/10">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="font-semibold text-sm">${uc.name}</span>
+          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${uc.catBg} ${uc.catText}">${uc.cat}</span>
+        </div>
+        <div class="text-xs text-on-surface-variant truncate">${uc.desc}</div>
+      </div>
+      <div class="text-right ml-4 shrink-0">
+        <span class="font-bold">${fmt(uc.val)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
