@@ -628,7 +628,7 @@ function goToStep(step) {
       calculate();
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('calculator').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 250);
 }
 
