@@ -502,7 +502,20 @@ function setCurrency(c) {
   });
 });
 
+let arpcManuallyEdited = false;
+document.getElementById('arpc').addEventListener('input', () => { arpcManuallyEdited = true; });
+
+function updateDerivedARPC() {
+  if (arpcManuallyEdited) return;
+  const rev = parseNum(document.getElementById('revenue').value);
+  const cust = parseNum(document.getElementById('customers').value);
+  if (rev > 0 && cust > 0) {
+    document.getElementById('arpc').value = Math.round(rev / cust);
+  }
+}
+
 function autoCalc() {
+  updateDerivedARPC();
   const industry = document.getElementById('industry').value;
   const revenue = parseNum(document.getElementById('revenue').value);
   const customers = parseNum(document.getElementById('customers').value);
@@ -515,6 +528,7 @@ function autoCalc() {
 document.getElementById('industry').addEventListener('change', function() {
   const b = BENCHMARKS[this.value];
   if (!b) return;
+  arpcManuallyEdited = false;
   document.getElementById('churnRate').value = (b.churnRate * 100).toFixed(1);
   document.getElementById('cac').value = b.cac;
   document.getElementById('arpc').value = b.arpc;
