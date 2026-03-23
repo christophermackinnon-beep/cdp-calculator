@@ -557,9 +557,9 @@ function calculate() {
   const retargetingRevenue = incrementalRetarget * arpc * firstYearFactor;
 
   // ── Model 3: Churn Defense (Retain) ──
-  // Retained customers: save reacquisition cost + retain half-year revenue.
-  const churnReduction = 0.005;
-  const customersRetained = customers * churnReduction;
+  // Retain 2% of the churning population through CDP-driven lifecycle campaigns.
+  const churnSaveRate = 0.02;
+  const customersRetained = customers * churnRate * churnSaveRate;
   const reacquisitionSavings = customersRetained * cac;
   const revenueRetained = customersRetained * arpc * 0.5; // conservative: partial year
   const churnBenefit = reacquisitionSavings + revenueRetained;
