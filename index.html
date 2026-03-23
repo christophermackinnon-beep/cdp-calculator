@@ -461,27 +461,11 @@ let currency = 'EUR';
 // ══════════════════════════════════════
 //  Formatting
 // ══════════════════════════════════════
-function parseNum(str) {
-  const s = String(str).trim();
-  const bnMatch = s.match(/^([0-9,.]+)\s*[Bb][Nn]?$/);
-  if (bnMatch) return parseFloat(bnMatch[1].replace(/,/g, '')) * 1e9;
-  const mMatch = s.match(/^([0-9,.]+)\s*[Mm]$/);
-  if (mMatch) return parseFloat(mMatch[1].replace(/,/g, '')) * 1e6;
-  const kMatch = s.match(/^([0-9,.]+)\s*[Kk]$/);
-  if (kMatch) return parseFloat(kMatch[1].replace(/,/g, '')) * 1e3;
-  return parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
-}
+function parseNum(str) { return parseFloat(String(str).replace(/[^0-9.]/g, '')) || 0; }
 function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n); }
 function fmtNum(n) { return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n); }
 function fmtPct(n) { return (n * 100).toFixed(1) + '%'; }
 function formatInputValue(el) { const raw = parseNum(el.value); if (raw > 0) el.value = fmtNum(raw); }
-function fmtShortNum(n) {
-  if (n >= 1e9) { const v = n / 1e9; return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')) + 'Bn'; }
-  if (n >= 1e6) { const v = n / 1e6; return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(2).replace(/0+$/, '').replace(/\.$/, '')) + 'M'; }
-  if (n >= 1e3) { const v = n / 1e3; return (v % 1 === 0 ? v.toFixed(0) : v.toFixed(1).replace(/0+$/, '').replace(/\.$/, '')) + 'K'; }
-  return fmtNum(n);
-}
-function formatRevenueValue(el) { const raw = parseNum(el.value); if (raw > 0) el.value = fmtShortNum(raw); }
 
 // ══════════════════════════════════════
 //  Currency
@@ -503,24 +487,20 @@ function setCurrency(c) {
 // ══════════════════════════════════════
 //  Input formatting
 // ══════════════════════════════════════
-// Revenue: short format (2.43Bn, 145M, etc.)
-(() => {
-  const el = document.getElementById('revenue');
-  const slider = document.getElementById('revenue-slider');
-  el.addEventListener('blur', () => { formatRevenueValue(el); autoCalc(); });
-  el.addEventListener('focus', () => { const raw = parseNum(el.value); if (raw > 0) el.value = raw; });
-  el.addEventListener('input', () => { const raw = parseNum(el.value); if (raw > 0) slider.value = raw; });
-  slider.addEventListener('input', () => { el.value = fmtShortNum(parseInt(slider.value)); autoCalc(); });
-})();
-// Customers: standard comma format
-(() => {
-  const el = document.getElementById('customers');
-  const slider = document.getElementById('customers-slider');
+['revenue', 'customers'].forEach(id => {
+  const el = document.getElementById(id);
+  const slider = document.getElementById(id + '-slider');
   el.addEventListener('blur', () => { formatInputValue(el); autoCalc(); });
   el.addEventListener('focus', () => { const raw = parseNum(el.value); if (raw > 0) el.value = raw; });
-  el.addEventListener('input', () => { const raw = parseNum(el.value); if (raw > 0) slider.value = raw; });
-  slider.addEventListener('input', () => { el.value = fmtNum(parseInt(slider.value)); autoCalc(); });
-})();
+  el.addEventListener('input', () => {
+    const raw = parseNum(el.value);
+    if (raw > 0) slider.value = raw;
+  });
+  slider.addEventListener('input', () => {
+    el.value = fmtNum(parseInt(slider.value));
+    autoCalc();
+  });
+});
 
 function autoCalc() {
   const industry = document.getElementById('industry').value;
