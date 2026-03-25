@@ -519,7 +519,7 @@ let currentStep = 1;
 function parseNum(str) { return parseFloat(String(str).replace(/[^0-9.]/g, '')) || 0; }
 
 // Logarithmic slider helpers
-const REVENUE_MIN = 1000000, REVENUE_MAX = 2000000000;
+const REVENUE_MIN = 1000000, REVENUE_MAX = 10000000000;
 const CUSTOMERS_MIN = 10000, CUSTOMERS_MAX = 50000000;
 const SLIDER_MAX = 1000;
 function sliderToValue(pos, min, max) { return Math.round(min * Math.pow(max / min, pos / SLIDER_MAX)); }
@@ -664,7 +664,8 @@ function deriveARPC() {
   const rev = parseNum(document.getElementById('s2-revenue').value);
   const cust = parseNum(document.getElementById('s2-customers').value);
   if (rev > 0 && cust > 0) {
-    document.getElementById('s3-arpc').value = Math.round(rev / cust);
+    const derived = rev / cust;
+    document.getElementById('s3-arpc').value = derived >= 10 ? Math.round(derived) : derived.toFixed(2);
   }
 }
 
@@ -680,7 +681,8 @@ function calculate() {
 
   const churnRate = (parseFloat(document.getElementById('s3-churn').value) || (b.churnRate * 100)) / 100;
   const cac = parseFloat(document.getElementById('s3-cac').value) || b.cac;
-  const arpc = parseFloat(document.getElementById('s3-arpc').value) || b.arpc;
+  const arpcRaw = parseFloat(document.getElementById('s3-arpc').value);
+  const arpc = (!isNaN(arpcRaw) && arpcRaw > 0) ? arpcRaw : b.arpc;
   const convRate = (parseFloat(document.getElementById('s3-conv').value) || (b.convRate * 100)) / 100;
   const uniqueUsers = customers * b.visitorMult;
 
