@@ -94,6 +94,7 @@ tailwind.config = {
   input[type="range"] { -webkit-appearance: none; height: 6px; border-radius: 3px; background: #e4e2e1; outline: none; }
   input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #002baa; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
   input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #002baa; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  select#industry { background-image: none; }
 </style>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased">
@@ -189,7 +190,7 @@ tailwind.config = {
               <span id="revenue-symbol" class="absolute left-6 top-5 text-lg text-outline font-medium">&#8364;</span>
               <input id="revenue" class="w-full bg-surface-container-highest border-none rounded-xl py-5 pl-12 pr-6 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline" placeholder="100,000,000" type="text" inputmode="numeric"/>
             </div>
-            <input id="revenue-slider" type="range" min="1000000" max="2000000000" step="5000000" value="100000000" class="w-full mt-3 h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary"/>
+            <input id="revenue-slider" type="range" min="0" max="1000" step="1" value="500" class="w-full mt-3 h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary"/>
           </div>
 
           <!-- Addressable Base -->
@@ -199,7 +200,7 @@ tailwind.config = {
               <input id="customers" class="w-full bg-surface-container-highest border-none rounded-xl py-5 px-6 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all placeholder:text-outline" placeholder="500,000" type="text" inputmode="numeric"/>
               <span class="absolute right-6 top-5 text-outline material-symbols-outlined">group</span>
             </div>
-            <input id="customers-slider" type="range" min="10000" max="20000000" step="10000" value="500000" class="w-full mt-3 h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary"/>
+            <input id="customers-slider" type="range" min="0" max="1000" step="1" value="500" class="w-full mt-3 h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-primary"/>
           </div>
         </div>
 
@@ -442,17 +443,17 @@ tailwind.config = {
 //  INDUSTRY BENCHMARKS (from business-case skill)
 // ══════════════════════════════════════════════════
 const BENCHMARKS = {
-  retail:           { mediaPct: 0.05, convRate: 0.015, churnRate: 0.30, cac: 50,   arpc: 150,   visitorMult: 3,  entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage at-risk customers through personalised lifecycle campaigns', growDesc: 'Cross-sell complementary categories based on purchase history' },
-  ecommerce:        { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 45,   arpc: 100,   visitorMult: 5,  entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage inactive customers before they lapse with omni-channel outreach', growDesc: 'Recommend complementary products to increase basket size and order frequency' },
-  telecom:          { mediaPct: 0.035,convRate: 0.02,  churnRate: 0.15, cac: 200,  arpc: 500,   visitorMult: 2,  entity: 'Subscriber', entityPlural: 'Subscribers', revenueMetric: 'ARPU', acqCost: 'SAC', baseLabel: 'Active Subscribers', retainName: 'Churn Prevention', retainDesc: 'Identify contract-end churn risk and engage with targeted retention offers', growDesc: 'Upsell data add-ons, device insurance, and family plans to existing subscribers' },
-  insurance:        { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.12, cac: 400,  arpc: 1000,  visitorMult: 2,  entity: 'Policyholder', entityPlural: 'Policyholders', revenueMetric: 'ARPP', acqCost: 'PAC', baseLabel: 'Active Policyholders', retainName: 'Policy Retention', retainDesc: 'Engage policyholders approaching renewal with personalised retention offers', growDesc: 'Cross-sell additional policy types to existing policyholders (e.g. home to auto)' },
-  saas:             { mediaPct: 0.15, convRate: 0.035, churnRate: 0.08, cac: 500,  arpc: 5000,  visitorMult: 2,  entity: 'User', entityPlural: 'Users', revenueMetric: 'ARPU', acqCost: 'CAC', baseLabel: 'Paying Users', retainName: 'Churn Prevention', retainDesc: 'Detect product usage dropoff and trigger proactive customer success outreach', growDesc: 'Identify expansion-ready accounts and drive tier upgrades or add-on adoption' },
-  fmcg:             { mediaPct: 0.05, convRate: 0.015, churnRate: 0.40, cac: 25,   arpc: 60,    visitorMult: 4,  entity: 'Consumer', entityPlural: 'Consumers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Consumers', retainName: 'Brand Loyalty', retainDesc: 'Prevent brand switching by re-engaging consumers with personalised category campaigns', growDesc: 'Cross-sell complementary product categories to registered consumers' },
-  automotive:       { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.20, cac: 1000, arpc: 15000, visitorMult: 2,  entity: 'Buyer', entityPlural: 'Buyers', revenueMetric: 'ARPC', acqCost: 'LAC', baseLabel: 'CRM Contacts', retainName: 'Owner Retention', retainDesc: 'Keep existing owners in your brand ecosystem for their next vehicle purchase', growDesc: 'Upsell aftersales services, accessories, and financing products to existing owners' },
-  fitness_wellness: { mediaPct: 0.06, convRate: 0.02,  churnRate: 0.35, cac: 54,   arpc: 565,   visitorMult: 3,  entity: 'Member', entityPlural: 'Members', revenueMetric: 'ARPM', acqCost: 'MAC', baseLabel: 'Active Members', retainName: 'Member Retention', retainDesc: 'Identify declining visit frequency and trigger re-engagement before cancellation', growDesc: 'Upsell personal training, premium tiers, and nutrition plans to active members' },
-  beauty:           { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 30,   arpc: 60,    visitorMult: 4,  entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage lapsing beauty customers with personalised replenishment and loyalty campaigns', growDesc: 'Cross-sell skincare, fragrance, and wellness products based on purchase patterns' },
-  media_publishing: { mediaPct: 0.08, convRate: 0.03,  churnRate: 0.25, cac: 50,   arpc: 120,   visitorMult: 5,  entity: 'Subscriber', entityPlural: 'Subscribers', revenueMetric: 'ARPU', acqCost: 'SAC', baseLabel: 'Paid Subscribers', retainName: 'Subscriber Retention', retainDesc: 'Re-engage subscribers with declining content consumption before they cancel', growDesc: 'Upsell premium tiers, bundled content, and event access to engaged subscribers' },
-  grocery:          { mediaPct: 0.02, convRate: 0.02,  churnRate: 0.30, cac: 15,   arpc: 3000,  visitorMult: 3,  entity: 'Shopper', entityPlural: 'Shoppers', revenueMetric: 'ARPC', acqCost: 'SAC', baseLabel: 'Loyalty Card Holders', retainName: 'Loyalty Retention', retainDesc: 'Re-engage lapsing loyalty card holders before they drift to competitors', growDesc: 'Increase basket size by recommending complementary categories to loyalty shoppers' },
+  retail:           { mediaPct: 0.05, convRate: 0.015, churnRate: 0.30, cac: 50,   arpc: 150,   visitorMult: 3, shareIdentified: 0.30, avgUplift: 0.25, entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage at-risk customers through personalised lifecycle campaigns', growDesc: 'Cross-sell complementary categories based on purchase history' },
+  ecommerce:        { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 45,   arpc: 100,   visitorMult: 5, shareIdentified: 0.35, avgUplift: 0.25, entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage inactive customers before they lapse with omni-channel outreach', growDesc: 'Recommend complementary products to increase basket size and order frequency' },
+  telecom:          { mediaPct: 0.035,convRate: 0.02,  churnRate: 0.15, cac: 200,  arpc: 500,   visitorMult: 2, shareIdentified: 0.25, avgUplift: 0.20, entity: 'Subscriber', entityPlural: 'Subscribers', revenueMetric: 'ARPU', acqCost: 'SAC', baseLabel: 'Active Subscribers', retainName: 'Churn Prevention', retainDesc: 'Identify contract-end churn risk and engage with targeted retention offers', growDesc: 'Upsell data add-ons, device insurance, and family plans to existing subscribers' },
+  insurance:        { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.12, cac: 400,  arpc: 1000,  visitorMult: 2, shareIdentified: 0.25, avgUplift: 0.15, entity: 'Policyholder', entityPlural: 'Policyholders', revenueMetric: 'ARPP', acqCost: 'PAC', baseLabel: 'Active Policyholders', retainName: 'Policy Retention', retainDesc: 'Engage policyholders approaching renewal with personalised retention offers', growDesc: 'Cross-sell additional policy types to existing policyholders (e.g. home to auto)' },
+  saas:             { mediaPct: 0.15, convRate: 0.035, churnRate: 0.08, cac: 500,  arpc: 5000,  visitorMult: 2, shareIdentified: 0.30, avgUplift: 0.30, entity: 'User', entityPlural: 'Users', revenueMetric: 'ARPU', acqCost: 'CAC', baseLabel: 'Paying Users', retainName: 'Churn Prevention', retainDesc: 'Detect product usage dropoff and trigger proactive customer success outreach', growDesc: 'Identify expansion-ready accounts and drive tier upgrades or add-on adoption' },
+  fmcg:             { mediaPct: 0.05, convRate: 0.015, churnRate: 0.40, cac: 25,   arpc: 60,    visitorMult: 4, shareIdentified: 0.20, avgUplift: 0.25, entity: 'Consumer', entityPlural: 'Consumers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Consumers', retainName: 'Brand Loyalty', retainDesc: 'Prevent brand switching by re-engaging consumers with personalised category campaigns', growDesc: 'Cross-sell complementary product categories to registered consumers' },
+  automotive:       { mediaPct: 0.04, convRate: 0.01,  churnRate: 0.20, cac: 1000, arpc: 15000, visitorMult: 2, shareIdentified: 0.20, avgUplift: 0.10, entity: 'Buyer', entityPlural: 'Buyers', revenueMetric: 'ARPC', acqCost: 'LAC', baseLabel: 'CRM Contacts', retainName: 'Owner Retention', retainDesc: 'Keep existing owners in your brand ecosystem for their next vehicle purchase', growDesc: 'Upsell aftersales services, accessories, and financing products to existing owners' },
+  fitness_wellness: { mediaPct: 0.06, convRate: 0.02,  churnRate: 0.35, cac: 54,   arpc: 565,   visitorMult: 3, shareIdentified: 0.30, avgUplift: 0.25, entity: 'Member', entityPlural: 'Members', revenueMetric: 'ARPM', acqCost: 'MAC', baseLabel: 'Active Members', retainName: 'Member Retention', retainDesc: 'Identify declining visit frequency and trigger re-engagement before cancellation', growDesc: 'Upsell personal training, premium tiers, and nutrition plans to active members' },
+  beauty:           { mediaPct: 0.08, convRate: 0.02,  churnRate: 0.35, cac: 30,   arpc: 60,    visitorMult: 4, shareIdentified: 0.30, avgUplift: 0.25, entity: 'Customer', entityPlural: 'Customers', revenueMetric: 'ARPC', acqCost: 'CAC', baseLabel: 'Registered Customers', retainName: 'Customer Retention', retainDesc: 'Re-engage lapsing beauty customers with personalised replenishment and loyalty campaigns', growDesc: 'Cross-sell skincare, fragrance, and wellness products based on purchase patterns' },
+  media_publishing: { mediaPct: 0.08, convRate: 0.03,  churnRate: 0.25, cac: 50,   arpc: 120,   visitorMult: 5, shareIdentified: 0.30, avgUplift: 0.20, entity: 'Subscriber', entityPlural: 'Subscribers', revenueMetric: 'ARPU', acqCost: 'SAC', baseLabel: 'Paid Subscribers', retainName: 'Subscriber Retention', retainDesc: 'Re-engage subscribers with declining content consumption before they cancel', growDesc: 'Upsell premium tiers, bundled content, and event access to engaged subscribers' },
+  grocery:          { mediaPct: 0.02, convRate: 0.02,  churnRate: 0.30, cac: 15,   arpc: 3000,  visitorMult: 3, shareIdentified: 0.35, avgUplift: 0.25, entity: 'Shopper', entityPlural: 'Shoppers', revenueMetric: 'ARPC', acqCost: 'SAC', baseLabel: 'Loyalty Card Holders', retainName: 'Loyalty Retention', retainDesc: 'Re-engage lapsing loyalty card holders before they drift to competitors', growDesc: 'Increase basket size by recommending complementary categories to loyalty shoppers' },
 };
 
 const SYMBOLS = { USD: '$', EUR: '\u20AC', GBP: '\u00A3' };
@@ -462,6 +463,17 @@ let currency = 'EUR';
 //  Formatting
 // ══════════════════════════════════════
 function parseNum(str) { return parseFloat(String(str).replace(/[^0-9.]/g, '')) || 0; }
+
+// Logarithmic slider helpers
+const REVENUE_MIN = 1000000, REVENUE_MAX = 2000000000;
+const CUSTOMERS_MIN = 10000, CUSTOMERS_MAX = 50000000;
+const SLIDER_MAX = 1000;
+function sliderToValue(pos, min, max) { return Math.round(min * Math.pow(max / min, pos / SLIDER_MAX)); }
+function valueToSlider(val, min, max) {
+  if (val <= min) return 0;
+  if (val >= max) return SLIDER_MAX;
+  return Math.round(SLIDER_MAX * Math.log(val / min) / Math.log(max / min));
+}
 function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n); }
 function fmtNum(n) { return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(n); }
 function fmtPct(n) { return (n * 100).toFixed(1) + '%'; }
@@ -487,17 +499,23 @@ function setCurrency(c) {
 // ══════════════════════════════════════
 //  Input formatting
 // ══════════════════════════════════════
+const SLIDER_RANGES = {
+  revenue: { min: REVENUE_MIN, max: REVENUE_MAX },
+  customers: { min: CUSTOMERS_MIN, max: CUSTOMERS_MAX }
+};
 ['revenue', 'customers'].forEach(id => {
   const el = document.getElementById(id);
   const slider = document.getElementById(id + '-slider');
+  const range = SLIDER_RANGES[id];
   el.addEventListener('blur', () => { formatInputValue(el); autoCalc(); });
   el.addEventListener('focus', () => { const raw = parseNum(el.value); if (raw > 0) el.value = raw; });
   el.addEventListener('input', () => {
     const raw = parseNum(el.value);
-    if (raw > 0) slider.value = raw;
+    if (raw > 0) slider.value = valueToSlider(raw, range.min, range.max);
   });
   slider.addEventListener('input', () => {
-    el.value = fmtNum(parseInt(slider.value));
+    const val = sliderToValue(parseInt(slider.value), range.min, range.max);
+    el.value = fmtNum(val);
     autoCalc();
   });
 });
@@ -539,6 +557,11 @@ document.getElementById('industry').addEventListener('change', function() {
   document.getElementById('label-cac').textContent = b.acqCost + ' (' + b.entity + ' Acquisition Cost)';
   document.getElementById('label-new-customers').textContent = 'New ' + b.entityPlural;
   document.getElementById('label-retained').textContent = b.entityPlural + ' Retained';
+  // Sync slider positions with current input values
+  const revVal = parseNum(document.getElementById('revenue').value);
+  const custVal = parseNum(document.getElementById('customers').value);
+  if (revVal > 0) document.getElementById('revenue-slider').value = valueToSlider(revVal, REVENUE_MIN, REVENUE_MAX);
+  if (custVal > 0) document.getElementById('customers-slider').value = valueToSlider(custVal, CUSTOMERS_MIN, CUSTOMERS_MAX);
   autoCalc();
 });
 
@@ -597,8 +620,8 @@ function calculate() {
 
   // ── Model 4: Cross-Sell / Upsell (Grow) ──
   // From skill: customers × shareIdentified × convRate × ARPC × avgUplift
-  const shareIdentified = 0.20;
-  const avgUplift = 0.10;
+  const shareIdentified = b.shareIdentified;
+  const avgUplift = b.avgUplift;
   const customersTargeted = customers * shareIdentified;
   const customersUpsold = customersTargeted * convRate;
   const crossSellRevenue = customersUpsold * arpc * avgUplift;
