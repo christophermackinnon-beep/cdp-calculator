@@ -365,12 +365,6 @@ tailwind.config = {
               </div>
             </div>
 
-            <!-- Use Case Breakdown -->
-            <div class="mb-10 fade-up fade-up-3">
-              <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Use Case Breakdown</h4>
-              <div id="r-usecases" class="space-y-3"></div>
-            </div>
-
             <!-- CTA -->
             <div class="text-center pt-6 border-t border-outline-variant/10 fade-up fade-up-3">
               <p class="text-on-surface-variant mb-4">Want a detailed breakdown with scenario comparisons?</p>
@@ -580,6 +574,76 @@ const BENCHMARKS = {
 // ═══════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════
+// Industry-specific use case examples
+const USE_CASE_EXAMPLES = {
+  retail: {
+    suppression: 'e.g. Stop targeting loyalty members with new-customer discount ads — redirect that spend to genuine prospects',
+    retargeting: 'e.g. Match anonymous store-browser sessions to known profiles and serve personalised product ads across Meta & Google',
+    retain: 'e.g. Trigger a "We miss you" offer when a once-monthly shopper hasn\'t visited in 45 days',
+    grow: 'e.g. A customer who bought a winter coat sees glove and scarf recommendations in their next email'
+  },
+  ecommerce: {
+    suppression: 'e.g. Exclude recent purchasers from retargeting ads for items they already bought — saving wasted impressions',
+    retargeting: 'e.g. Reconnect abandoned-cart visitors across devices with the exact products they left behind',
+    retain: 'e.g. Detect a VIP customer whose order frequency has dropped and auto-enrol them in a win-back flow',
+    grow: 'e.g. After a skincare purchase, recommend the matching serum — increasing average basket by 20%'
+  },
+  telecom: {
+    suppression: 'e.g. Remove existing subscribers from "switch to us" campaigns — avoid paying to acquire people you already have',
+    retargeting: 'e.g. Re-engage visitors who compared plans but didn\'t convert, with a personalised offer on their preferred plan',
+    retain: 'e.g. Flag subscribers 60 days from contract end with declining data usage and trigger a tailored retention offer',
+    grow: 'e.g. Identify families on separate plans and offer a bundled family plan with shared data at a higher ARPU'
+  },
+  insurance: {
+    suppression: 'e.g. Stop bidding on "car insurance quotes" for users who already hold an active motor policy with you',
+    retargeting: 'e.g. A visitor who started a home insurance quote but didn\'t finish sees a reminder ad with their saved quote details',
+    retain: 'e.g. Engage policyholders 30 days before renewal with a loyalty discount — before they start comparison shopping',
+    grow: 'e.g. A motor policyholder who recently moved home receives a bundled home + motor offer at a combined discount'
+  },
+  saas: {
+    suppression: 'e.g. Exclude paying customers from "free trial" ad campaigns — redirect budget to net-new prospects',
+    retargeting: 'e.g. Re-engage free trial users who explored premium features but didn\'t upgrade, with a targeted upgrade offer',
+    retain: 'e.g. Detect a drop in weekly active usage and trigger a CSM outreach before the customer enters churn risk',
+    grow: 'e.g. Identify power-user teams on a starter plan and surface an enterprise upgrade path with ROI evidence'
+  },
+  fmcg: {
+    suppression: 'e.g. Suppress loyalty-programme members from mass-market awareness ads — they already know the brand',
+    retargeting: 'e.g. Match in-store sample recipients to online profiles and retarget them with a first-purchase coupon',
+    retain: 'e.g. A shopper who bought your cereal monthly hasn\'t repurchased in 6 weeks — trigger a loyalty reward',
+    grow: 'e.g. A laundry-detergent buyer sees a cross-sell for your fabric softener at checkout, increasing basket value'
+  },
+  automotive: {
+    suppression: 'e.g. Stop running "book a test drive" ads to people who already purchased — redirect to service campaigns',
+    retargeting: 'e.g. A visitor who configured a vehicle online but didn\'t book a test drive sees a personalised dealer reminder',
+    retain: 'e.g. As a lease approaches its final 6 months, trigger a personalised renewal offer before they visit competitors',
+    grow: 'e.g. Cross-sell extended warranty, winter tyres, or premium service plans to owners at 12-month service milestones'
+  },
+  fitness_wellness: {
+    suppression: 'e.g. Suppress active members from "join now" campaigns — redirect to referral-reward programs instead',
+    retargeting: 'e.g. A website visitor who viewed class schedules but didn\'t sign up receives a free-trial-class offer',
+    retain: 'e.g. When visit frequency drops from 3x/week to once, trigger a personalised "get back on track" message with a PT session',
+    grow: 'e.g. A group-class regular receives a personalised upsell for 1-on-1 personal training at a loyalty price'
+  },
+  beauty: {
+    suppression: 'e.g. Exclude customers who purchased a foundation last week from ads for the same product — avoid annoyance',
+    retargeting: 'e.g. A visitor who browsed a new serum range but didn\'t purchase sees a "complete your routine" ad with reviews',
+    retain: 'e.g. Predict when a customer\'s moisturiser is running low (based on purchase cycle) and send a replenishment reminder',
+    grow: 'e.g. A skincare buyer who\'s never tried your fragrance line sees a curated "discover your scent" recommendation'
+  },
+  media_publishing: {
+    suppression: 'e.g. Don\'t spend on "subscribe now" ads for existing paid subscribers — redirect to referral campaigns',
+    retargeting: 'e.g. A reader who hit the paywall 3 times this week sees a personalised offer for the topics they read most',
+    retain: 'e.g. Detect subscribers whose article consumption dropped 50% this month and re-engage with a personalised digest',
+    grow: 'e.g. An engaged news subscriber sees an upsell for the premium opinion + podcast tier based on reading habits'
+  },
+  grocery: {
+    suppression: 'e.g. Stop showing "download our app" ads to shoppers who already have the loyalty app installed',
+    retargeting: 'e.g. A shopper who browsed the weekly offers online but didn\'t place a delivery order gets a push notification',
+    retain: 'e.g. A weekly delivery customer who missed their regular Thursday order receives a "your favourites are waiting" nudge',
+    grow: 'e.g. A shopper who buys pasta every week is shown premium sauce and wine pairings to increase basket value'
+  }
+};
+
 const SYMBOLS = { USD: '$', EUR: '\u20AC', GBP: '\u00A3' };
 let currency = 'EUR';
 let selectedIndustry = '';
@@ -843,34 +907,22 @@ function calculate() {
   document.getElementById('r-retained').textContent = fmtNum(Math.round(customersRetained));
   document.getElementById('r-crosssell').textContent = fmt(crossSellRevenue);
 
-  // Use case cards
-  const useCases = [
-    { name: 'Audience Suppression', cat: 'Acquire', catBg: 'bg-primary-fixed', catText: 'text-primary', val: suppressionRevenue,
-      desc: 'Save media spend by suppressing existing ' + b.entityPlural.toLowerCase() + ' from acquisition campaigns' },
-    { name: 'Smart Retargeting', cat: 'Acquire', catBg: 'bg-primary-fixed', catText: 'text-primary', val: retargetingRevenue,
-      desc: 'Reach more high-intent visitors with improved identity matching' },
-    { name: b.retainName, cat: 'Retain', catBg: 'bg-secondary-fixed', catText: 'text-secondary', val: churnBenefit,
-      desc: b.retainDesc },
-    { name: 'Cross-Sell / Upsell', cat: 'Grow', catBg: 'bg-tertiary-fixed', catText: 'text-tertiary', val: crossSellRevenue,
-      desc: b.growDesc },
-  ];
-
-  document.getElementById('r-usecases').innerHTML = useCases.map(uc => `
-    <div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/10">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="font-semibold text-sm">${uc.name}</span>
-          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${uc.catBg} ${uc.catText}">${uc.cat}</span>
-        </div>
-        <div class="text-xs text-on-surface-variant truncate">${uc.desc}</div>
-      </div>
-      <div class="text-right ml-4 shrink-0">
-        <span class="font-bold">${fmt(uc.val)}</span>
-      </div>
-    </div>
-  `).join('');
-
   // Populate breakdown table
+  const ex = USE_CASE_EXAMPLES[selectedIndustry] || {};
+  const useCases = [
+    { name: 'Audience Suppression', cat: 'Acquire', val: suppressionRevenue,
+      desc: 'Save media spend by suppressing existing ' + b.entityPlural.toLowerCase() + ' from acquisition campaigns',
+      example: ex.suppression },
+    { name: 'Smart Retargeting', cat: 'Acquire', val: retargetingRevenue,
+      desc: 'Reach more high-intent visitors with improved identity matching',
+      example: ex.retargeting },
+    { name: b.retainName, cat: 'Retain', val: churnBenefit,
+      desc: b.retainDesc,
+      example: ex.retain },
+    { name: 'Cross-Sell / Upsell', cat: 'Grow', val: crossSellRevenue,
+      desc: b.growDesc,
+      example: ex.grow },
+  ];
   document.getElementById('breakdown-empty').classList.add('hidden');
   document.getElementById('breakdown-table').classList.remove('hidden');
   const catBgMap = { Acquire: 'bg-primary-fixed', Retain: 'bg-secondary-fixed', Grow: 'bg-tertiary-fixed' };
@@ -880,6 +932,7 @@ function calculate() {
       <td class="px-8 py-6">
         <div class="font-medium">${uc.name}</div>
         <div class="text-xs text-on-surface-variant mt-1">${uc.desc}</div>
+        ${uc.example ? '<div class="text-xs text-primary/70 mt-2 italic">' + uc.example + '</div>' : ''}
       </td>
       <td class="px-8 py-6">
         <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${catBgMap[uc.cat]} ${catTextMap[uc.cat]}">${uc.cat}</span>

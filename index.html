@@ -95,6 +95,9 @@ tailwind.config = {
   input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #002baa; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
   input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #002baa; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
   select#industry { background-image: none; }
+  .industry-card { transition: all 0.2s; cursor: pointer; }
+  .industry-card:hover { border-color: #002baa; background: #f6f3f2; }
+  .industry-card.selected { border-color: #002baa; background: #dee1ff; box-shadow: 0 0 0 2px #002baa; }
 </style>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased">
@@ -154,23 +157,66 @@ tailwind.config = {
           <!-- Industry -->
           <div>
             <label class="block text-sm font-semibold text-on-surface-variant mb-4 ml-2">Industry</label>
-            <div class="relative">
-              <select id="industry" class="w-full bg-surface-container-highest border-none rounded-xl py-5 px-6 pr-12 text-lg focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary transition-all cursor-pointer appearance-none">
-                <option value="">Select your industry...</option>
-                <option value="retail">Retail</option>
-                <option value="ecommerce">E-Commerce</option>
-                <option value="telecom">Telecom</option>
-                <option value="insurance">Insurance</option>
-                <option value="saas">SaaS / Technology</option>
-                <option value="fmcg">FMCG / CPG</option>
-                <option value="automotive">Automotive</option>
-                <option value="fitness_wellness">Fitness & Wellness</option>
-                <option value="beauty">Beauty & Cosmetics</option>
-                <option value="media_publishing">Media & Publishing</option>
-                <option value="grocery">Grocery</option>
-              </select>
-              <span class="absolute right-6 top-5 text-outline material-symbols-outlined pointer-events-none">expand_more</span>
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2" id="industry-grid">
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="retail">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">storefront</span>
+                <span class="text-xs font-semibold">Retail</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="ecommerce">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">shopping_cart</span>
+                <span class="text-xs font-semibold">E-Commerce</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="telecom">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">cell_tower</span>
+                <span class="text-xs font-semibold">Telecom</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="insurance">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">shield</span>
+                <span class="text-xs font-semibold">Insurance</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="saas">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">cloud</span>
+                <span class="text-xs font-semibold">SaaS / Tech</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="fmcg">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">inventory_2</span>
+                <span class="text-xs font-semibold">FMCG / CPG</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="automotive">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">directions_car</span>
+                <span class="text-xs font-semibold">Automotive</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="fitness_wellness">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">fitness_center</span>
+                <span class="text-xs font-semibold">Fitness</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="beauty">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">spa</span>
+                <span class="text-xs font-semibold">Beauty</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="media_publishing">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">newspaper</span>
+                <span class="text-xs font-semibold">Media</span>
+              </div>
+              <div class="industry-card rounded-xl border-2 border-outline-variant/20 p-3 text-center" data-value="grocery">
+                <span class="material-symbols-outlined text-xl text-primary mb-0.5 block">local_grocery_store</span>
+                <span class="text-xs font-semibold">Grocery</span>
+              </div>
             </div>
+            <select id="industry" class="hidden">
+              <option value=""></option>
+              <option value="retail">Retail</option>
+              <option value="ecommerce">E-Commerce</option>
+              <option value="telecom">Telecom</option>
+              <option value="insurance">Insurance</option>
+              <option value="saas">SaaS / Technology</option>
+              <option value="fmcg">FMCG / CPG</option>
+              <option value="automotive">Automotive</option>
+              <option value="fitness_wellness">Fitness &amp; Wellness</option>
+              <option value="beauty">Beauty &amp; Cosmetics</option>
+              <option value="media_publishing">Media &amp; Publishing</option>
+              <option value="grocery">Grocery</option>
+            </select>
           </div>
 
           <!-- Currency -->
@@ -503,6 +549,76 @@ const BENCHMARKS = {
   grocery:          { mediaPct: 0.02, convRate: 0.02,  churnRate: 0.30, cac: 15,   arpc: 3000,  visitorMult: 3, shareIdentified: 0.35, avgUplift: 0.25, entity: 'Shopper', entityPlural: 'Shoppers', revenueMetric: 'ARPC', acqCost: 'SAC', baseLabel: 'Loyalty Card Holders', retainName: 'Loyalty Retention', retainDesc: 'Re-engage lapsing loyalty card holders before they drift to competitors', growDesc: 'Increase basket size by recommending complementary categories to loyalty shoppers' },
 };
 
+// Industry-specific use case examples
+const USE_CASE_EXAMPLES = {
+  retail: {
+    suppression: 'e.g. Stop targeting loyalty members with new-customer discount ads — redirect that spend to genuine prospects',
+    retargeting: 'e.g. Match anonymous store-browser sessions to known profiles and serve personalised product ads across Meta & Google',
+    retain: 'e.g. Trigger a "We miss you" offer when a once-monthly shopper hasn\'t visited in 45 days',
+    grow: 'e.g. A customer who bought a winter coat sees glove and scarf recommendations in their next email'
+  },
+  ecommerce: {
+    suppression: 'e.g. Exclude recent purchasers from retargeting ads for items they already bought — saving wasted impressions',
+    retargeting: 'e.g. Reconnect abandoned-cart visitors across devices with the exact products they left behind',
+    retain: 'e.g. Detect a VIP customer whose order frequency has dropped and auto-enrol them in a win-back flow',
+    grow: 'e.g. After a skincare purchase, recommend the matching serum — increasing average basket by 20%'
+  },
+  telecom: {
+    suppression: 'e.g. Remove existing subscribers from "switch to us" campaigns — avoid paying to acquire people you already have',
+    retargeting: 'e.g. Re-engage visitors who compared plans but didn\'t convert, with a personalised offer on their preferred plan',
+    retain: 'e.g. Flag subscribers 60 days from contract end with declining data usage and trigger a tailored retention offer',
+    grow: 'e.g. Identify families on separate plans and offer a bundled family plan with shared data at a higher ARPU'
+  },
+  insurance: {
+    suppression: 'e.g. Stop bidding on "car insurance quotes" for users who already hold an active motor policy with you',
+    retargeting: 'e.g. A visitor who started a home insurance quote but didn\'t finish sees a reminder ad with their saved quote details',
+    retain: 'e.g. Engage policyholders 30 days before renewal with a loyalty discount — before they start comparison shopping',
+    grow: 'e.g. A motor policyholder who recently moved home receives a bundled home + motor offer at a combined discount'
+  },
+  saas: {
+    suppression: 'e.g. Exclude paying customers from "free trial" ad campaigns — redirect budget to net-new prospects',
+    retargeting: 'e.g. Re-engage free trial users who explored premium features but didn\'t upgrade, with a targeted upgrade offer',
+    retain: 'e.g. Detect a drop in weekly active usage and trigger a CSM outreach before the customer enters churn risk',
+    grow: 'e.g. Identify power-user teams on a starter plan and surface an enterprise upgrade path with ROI evidence'
+  },
+  fmcg: {
+    suppression: 'e.g. Suppress loyalty-programme members from mass-market awareness ads — they already know the brand',
+    retargeting: 'e.g. Match in-store sample recipients to online profiles and retarget them with a first-purchase coupon',
+    retain: 'e.g. A shopper who bought your cereal monthly hasn\'t repurchased in 6 weeks — trigger a loyalty reward',
+    grow: 'e.g. A laundry-detergent buyer sees a cross-sell for your fabric softener at checkout, increasing basket value'
+  },
+  automotive: {
+    suppression: 'e.g. Stop running "book a test drive" ads to people who already purchased — redirect to service campaigns',
+    retargeting: 'e.g. A visitor who configured a vehicle online but didn\'t book a test drive sees a personalised dealer reminder',
+    retain: 'e.g. As a lease approaches its final 6 months, trigger a personalised renewal offer before they visit competitors',
+    grow: 'e.g. Cross-sell extended warranty, winter tyres, or premium service plans to owners at 12-month service milestones'
+  },
+  fitness_wellness: {
+    suppression: 'e.g. Suppress active members from "join now" campaigns — redirect to referral-reward programs instead',
+    retargeting: 'e.g. A website visitor who viewed class schedules but didn\'t sign up receives a free-trial-class offer',
+    retain: 'e.g. When visit frequency drops from 3x/week to once, trigger a personalised "get back on track" message with a PT session',
+    grow: 'e.g. A group-class regular receives a personalised upsell for 1-on-1 personal training at a loyalty price'
+  },
+  beauty: {
+    suppression: 'e.g. Exclude customers who purchased a foundation last week from ads for the same product — avoid annoyance',
+    retargeting: 'e.g. A visitor who browsed a new serum range but didn\'t purchase sees a "complete your routine" ad with reviews',
+    retain: 'e.g. Predict when a customer\'s moisturiser is running low (based on purchase cycle) and send a replenishment reminder',
+    grow: 'e.g. A skincare buyer who\'s never tried your fragrance line sees a curated "discover your scent" recommendation'
+  },
+  media_publishing: {
+    suppression: 'e.g. Don\'t spend on "subscribe now" ads for existing paid subscribers — redirect to referral campaigns',
+    retargeting: 'e.g. A reader who hit the paywall 3 times this week sees a personalised offer for the topics they read most',
+    retain: 'e.g. Detect subscribers whose article consumption dropped 50% this month and re-engage with a personalised digest',
+    grow: 'e.g. An engaged news subscriber sees an upsell for the premium opinion + podcast tier based on reading habits'
+  },
+  grocery: {
+    suppression: 'e.g. Stop showing "download our app" ads to shoppers who already have the loyalty app installed',
+    retargeting: 'e.g. A shopper who browsed the weekly offers online but didn\'t place a delivery order gets a push notification',
+    retain: 'e.g. A weekly delivery customer who missed their regular Thursday order receives a "your favourites are waiting" nudge',
+    grow: 'e.g. A shopper who buys pasta every week is shown premium sauce and wine pairings to increase basket value'
+  }
+};
+
 const SYMBOLS = { USD: '$', EUR: '\u20AC', GBP: '\u00A3' };
 let currency = 'EUR';
 
@@ -591,26 +707,31 @@ function autoCalc() {
 // ══════════════════════════════════════
 //  Industry change
 // ══════════════════════════════════════
-document.getElementById('industry').addEventListener('change', function() {
-  const b = BENCHMARKS[this.value];
-  if (!b) return;
-  arpcManuallyEdited = false;
-  document.getElementById('churnRate').value = (b.churnRate * 100).toFixed(1);
-  document.getElementById('cac').value = b.cac;
-  document.getElementById('arpc').value = b.arpc;
-  document.getElementById('conversionRate').value = (b.convRate * 100).toFixed(1);
-  // Industry-specific labels
-  document.getElementById('label-customers').textContent = b.baseLabel;
-  document.getElementById('label-arpc').textContent = b.revenueMetric + ' (Annual Rev / ' + b.entity + ')';
-  document.getElementById('label-cac').textContent = b.acqCost + ' (' + b.entity + ' Acquisition Cost)';
-  document.getElementById('label-new-customers').textContent = 'New ' + b.entityPlural;
-  document.getElementById('label-retained').textContent = b.entityPlural + ' Retained';
-  // Sync slider positions with current input values
-  const revVal = parseNum(document.getElementById('revenue').value);
-  const custVal = parseNum(document.getElementById('customers').value);
-  if (revVal > 0) document.getElementById('revenue-slider').value = valueToSlider(revVal, REVENUE_MIN, REVENUE_MAX);
-  if (custVal > 0) document.getElementById('customers-slider').value = valueToSlider(custVal, CUSTOMERS_MIN, CUSTOMERS_MAX);
-  autoCalc();
+document.querySelectorAll('.industry-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.industry-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('industry').value = card.dataset.value;
+    const b = BENCHMARKS[card.dataset.value];
+    if (!b) return;
+    arpcManuallyEdited = false;
+    document.getElementById('churnRate').value = (b.churnRate * 100).toFixed(1);
+    document.getElementById('cac').value = b.cac;
+    document.getElementById('arpc').value = b.arpc;
+    document.getElementById('conversionRate').value = (b.convRate * 100).toFixed(1);
+    // Industry-specific labels
+    document.getElementById('label-customers').textContent = b.baseLabel;
+    document.getElementById('label-arpc').textContent = b.revenueMetric + ' (Annual Rev / ' + b.entity + ')';
+    document.getElementById('label-cac').textContent = b.acqCost + ' (' + b.entity + ' Acquisition Cost)';
+    document.getElementById('label-new-customers').textContent = 'New ' + b.entityPlural;
+    document.getElementById('label-retained').textContent = b.entityPlural + ' Retained';
+    // Sync slider positions with current input values
+    const revVal = parseNum(document.getElementById('revenue').value);
+    const custVal = parseNum(document.getElementById('customers').value);
+    if (revVal > 0) document.getElementById('revenue-slider').value = valueToSlider(revVal, REVENUE_MIN, REVENUE_MAX);
+    if (custVal > 0) document.getElementById('customers-slider').value = valueToSlider(custVal, CUSTOMERS_MIN, CUSTOMERS_MAX);
+    autoCalc();
+  });
 });
 
 // ══════════════════════════════════════
@@ -700,15 +821,20 @@ function calculate() {
   document.getElementById('metric-crosssell').textContent = fmt(crossSellRevenue);
 
   // ── Breakdown Table ──
+  const ex = USE_CASE_EXAMPLES[industry] || {};
   const useCases = [
     { name: 'Audience Suppression', cat: 'Acquire', val: suppressionRevenue,
-      desc: 'Save media spend by suppressing existing ' + b.entityPlural.toLowerCase() + ' from acquisition campaigns' },
+      desc: 'Save media spend by suppressing existing ' + b.entityPlural.toLowerCase() + ' from acquisition campaigns',
+      example: ex.suppression },
     { name: 'Smart Retargeting', cat: 'Acquire', val: retargetingRevenue,
-      desc: 'Reach more high-intent visitors with improved identity matching' },
+      desc: 'Reach more high-intent visitors with improved identity matching',
+      example: ex.retargeting },
     { name: b.retainName, cat: 'Retain', val: churnBenefit,
-      desc: b.retainDesc },
+      desc: b.retainDesc,
+      example: ex.retain },
     { name: 'Cross-Sell / Upsell', cat: 'Grow', val: crossSellRevenue,
-      desc: b.growDesc },
+      desc: b.growDesc,
+      example: ex.grow },
   ];
 
   document.getElementById('breakdown-empty').classList.add('hidden');
@@ -723,6 +849,7 @@ function calculate() {
       <td class="px-8 py-6">
         <div class="font-medium">${uc.name}</div>
         <div class="text-xs text-on-surface-variant mt-1">${uc.desc}</div>
+        ${uc.example ? '<div class="text-xs text-primary/70 mt-2 italic">' + uc.example + '</div>' : ''}
       </td>
       <td class="px-8 py-6">
         <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${catBg[uc.cat]} ${catText[uc.cat]}">${uc.cat}</span>
