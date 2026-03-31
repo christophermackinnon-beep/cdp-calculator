@@ -122,7 +122,7 @@ tailwind.config = {
       <p class="text-on-surface-variant max-w-2xl">Answer a few quick questions and we'll calculate the projected annual uplift from Zeotap CDP across four proven use cases.</p>
     </div>
 
-  <div class="max-w-2xl mx-auto">
+  <div id="steps-container" class="max-w-2xl mx-auto transition-all duration-300">
 
     <!-- Progress -->
     <div class="flex items-center justify-center gap-3 mb-10">
@@ -250,112 +250,135 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- ═══ STEP 3: Results ═══ -->
+    <!-- ═══ STEP 3: Results (two-column) ═══ -->
     <div id="step-3" class="step-panel">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto">
 
-      <!-- Edit Inputs (collapsible) -->
-      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 mb-6 overflow-hidden">
-        <button onclick="toggleEditInputs()" class="w-full flex items-center justify-between px-8 py-5 hover:bg-surface-container-low/50 transition-colors">
-          <span class="text-sm font-semibold text-on-surface flex items-center gap-2">
-            <span class="material-symbols-outlined text-lg text-primary">tune</span>
-            Edit Inputs
-          </span>
-          <span class="material-symbols-outlined text-lg text-outline transition-transform" id="edit-chevron">expand_more</span>
-        </button>
-        <div id="edit-panel" class="hidden px-8 pb-6 border-t border-outline-variant/10">
-          <div class="grid grid-cols-2 gap-4 pt-4">
+        <!-- Left Column: All Inputs (always visible) -->
+        <div class="lg:col-span-4">
+          <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-6 sticky top-24 space-y-5">
+            <h4 class="text-sm font-bold text-on-surface flex items-center gap-2 mb-2">
+              <span class="material-symbols-outlined text-lg text-primary">tune</span>
+              Your Inputs
+            </h4>
+
+            <!-- Annual Revenue -->
             <div>
-              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-arpc">ARPC</label>
-              <input id="s3-arpc" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-revenue">Annual Revenue</label>
+              <div class="relative">
+                <span class="absolute left-3 top-3 text-xs text-outline" id="s3-currency-sym">&#8364;</span>
+                <input id="s3-revenue" class="w-full bg-surface-container-highest border-none rounded-lg py-3 pl-7 pr-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="text" inputmode="numeric"/>
+              </div>
+              <input id="s3-revenue-slider" type="range" min="0" max="1000" step="1" value="500" class="w-full mt-2 h-1.5"/>
             </div>
+
+            <!-- Customer Base -->
             <div>
-              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-cac">CAC</label>
-              <input id="s3-cac" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+              <label class="block text-xs font-medium text-outline mb-1" id="s3-label-customers">Customer / Member Base</label>
+              <div class="relative">
+                <input id="s3-customers" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="text" inputmode="numeric"/>
+                <span class="absolute right-3 top-3 text-outline material-symbols-outlined text-sm">group</span>
+              </div>
+              <input id="s3-customers-slider" type="range" min="0" max="1000" step="1" value="500" class="w-full mt-2 h-1.5"/>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-outline mb-1">Churn Rate (%)</label>
-              <input id="s3-churn" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
+
+            <hr class="border-outline-variant/10"/>
+
+            <!-- Assumptions -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-outline mb-1" id="s3-label-arpc">ARPC</label>
+                <input id="s3-arpc" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-outline mb-1" id="s3-label-cac">CAC</label>
+                <input id="s3-cac" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="1"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-outline mb-1">Churn Rate (%)</label>
+                <input id="s3-churn" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-outline mb-1">Conv. Rate (%)</label>
+                <input id="s3-conv" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
+              </div>
             </div>
-            <div>
-              <label class="block text-xs font-medium text-outline mb-1">Conv. Rate (%)</label>
-              <input id="s3-conv" class="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:bg-white focus:ring-0 focus:border-b-2 focus:border-primary" type="number" step="0.1"/>
-            </div>
-          </div>
-          <p class="text-xs text-outline mt-3">ARPC is calculated from your revenue and base. Override any value to customise.</p>
-        </div>
-      </div>
-
-      <!-- Results Card -->
-      <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-10">
-
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 fade-up">
-          <div>
-            <h3 class="text-sm font-bold uppercase tracking-widest text-primary mb-2">Projected Annual Benefit</h3>
-            <div id="r-total" class="text-[2.75rem] font-extrabold text-on-surface leading-none">&#8364;0</div>
-          </div>
-          <div class="bg-secondary-fixed/30 px-6 py-4 rounded-xl">
-            <span class="block text-xs font-bold text-on-secondary-fixed mb-1">REVENUE UPLIFT</span>
-            <span id="r-uplift" class="text-2xl font-bold text-primary">+0%</span>
-          </div>
-        </div>
-
-        <!-- Bars -->
-        <div class="h-48 flex items-end gap-4 mb-10 fade-up fade-up-1">
-          <div class="flex-1 space-y-2">
-            <div id="r-bar-acquire" class="w-full signature-gradient rounded-t-lg bar-transition" style="height:0px"></div>
-            <span class="block text-center text-xs font-medium text-on-surface-variant">Acquire</span>
-            <span id="r-bar-acquire-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
-          </div>
-          <div class="flex-1 space-y-2">
-            <div id="r-bar-retain" class="w-full bg-secondary-container rounded-t-lg bar-transition" style="height:0px"></div>
-            <span class="block text-center text-xs font-medium text-on-surface-variant">Retain</span>
-            <span id="r-bar-retain-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
-          </div>
-          <div class="flex-1 space-y-2">
-            <div id="r-bar-grow" class="w-full bg-tertiary-container rounded-t-lg bar-transition" style="height:0px"></div>
-            <span class="block text-center text-xs font-medium text-on-surface-variant">Grow</span>
-            <span id="r-bar-grow-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
-          </div>
-        </div>
-
-        <!-- Stat Tiles -->
-        <div class="grid grid-cols-2 gap-4 mb-10 fade-up fade-up-2">
-          <div class="p-4 bg-surface rounded-lg">
-            <span class="block text-xs font-medium text-outline mb-1">Recovered Media Spend</span>
-            <span id="r-savings" class="text-lg font-bold text-on-surface">&#8364;0</span>
-          </div>
-          <div class="p-4 bg-surface rounded-lg">
-            <span class="block text-xs font-medium text-outline mb-1" id="r-label-new">New Customers</span>
-            <span id="r-new" class="text-lg font-bold text-on-surface">0</span>
-          </div>
-          <div class="p-4 bg-surface rounded-lg">
-            <span class="block text-xs font-medium text-outline mb-1" id="r-label-retained">Customers Retained</span>
-            <span id="r-retained" class="text-lg font-bold text-on-surface">0</span>
-          </div>
-          <div class="p-4 bg-surface rounded-lg">
-            <span class="block text-xs font-medium text-outline mb-1">Cross-Sell Revenue</span>
-            <span id="r-crosssell" class="text-lg font-bold text-on-surface">&#8364;0</span>
-          </div>
-        </div>
-
-        <!-- Use Case Breakdown -->
-        <div class="mb-10 fade-up fade-up-3">
-          <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Use Case Breakdown</h4>
-          <div id="r-usecases" class="space-y-3"></div>
-        </div>
-
-        <!-- CTA -->
-        <div class="text-center pt-6 border-t border-outline-variant/10 fade-up fade-up-3">
-          <p class="text-on-surface-variant mb-4">Want a detailed breakdown with scenario comparisons?</p>
-          <a href="#" class="signature-gradient text-white px-8 py-4 rounded-full font-bold inline-flex items-center gap-2 hover:opacity-90 active:scale-95 duration-150 shadow-lg shadow-primary/20">
-            <span class="material-symbols-outlined">calendar_month</span>
-            Book a Demo
-          </a>
-          <div class="mt-4">
-            <button onclick="goToStep(1)" class="text-sm text-primary font-medium hover:opacity-80 transition-opacity">
-              ← Start Over
+            <p class="text-xs text-outline">ARPC is derived from revenue &divide; base. Override any value to customise.</p>
+            <button onclick="goToStep(1)" class="w-full text-sm text-primary font-medium hover:opacity-80 transition-opacity pt-2">
+              &larr; Start Over
             </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Results -->
+        <div class="lg:col-span-8">
+          <div class="bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10 p-10">
+
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 fade-up">
+              <div>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-primary mb-2">Projected Annual Benefit</h3>
+                <div id="r-total" class="text-[2.75rem] font-extrabold text-on-surface leading-none">&#8364;0</div>
+              </div>
+              <div class="bg-secondary-fixed/30 px-6 py-4 rounded-xl">
+                <span class="block text-xs font-bold text-on-secondary-fixed mb-1">REVENUE UPLIFT</span>
+                <span id="r-uplift" class="text-2xl font-bold text-primary">+0%</span>
+              </div>
+            </div>
+
+            <!-- Bars -->
+            <div class="h-48 flex items-end gap-4 mb-10 fade-up fade-up-1">
+              <div class="flex-1 space-y-2">
+                <div id="r-bar-acquire" class="w-full signature-gradient rounded-t-lg bar-transition" style="height:0px"></div>
+                <span class="block text-center text-xs font-medium text-on-surface-variant">Acquire</span>
+                <span id="r-bar-acquire-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+              </div>
+              <div class="flex-1 space-y-2">
+                <div id="r-bar-retain" class="w-full bg-secondary-container rounded-t-lg bar-transition" style="height:0px"></div>
+                <span class="block text-center text-xs font-medium text-on-surface-variant">Retain</span>
+                <span id="r-bar-retain-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+              </div>
+              <div class="flex-1 space-y-2">
+                <div id="r-bar-grow" class="w-full bg-tertiary-container rounded-t-lg bar-transition" style="height:0px"></div>
+                <span class="block text-center text-xs font-medium text-on-surface-variant">Grow</span>
+                <span id="r-bar-grow-val" class="block text-center text-xs font-bold text-on-surface">&#8364;0</span>
+              </div>
+            </div>
+
+            <!-- Stat Tiles -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 fade-up fade-up-2">
+              <div class="p-4 bg-surface rounded-lg">
+                <span class="block text-xs font-medium text-outline mb-1">Recovered Media Spend</span>
+                <span id="r-savings" class="text-lg font-bold text-on-surface">&#8364;0</span>
+              </div>
+              <div class="p-4 bg-surface rounded-lg">
+                <span class="block text-xs font-medium text-outline mb-1" id="r-label-new">New Customers</span>
+                <span id="r-new" class="text-lg font-bold text-on-surface">0</span>
+              </div>
+              <div class="p-4 bg-surface rounded-lg">
+                <span class="block text-xs font-medium text-outline mb-1" id="r-label-retained">Customers Retained</span>
+                <span id="r-retained" class="text-lg font-bold text-on-surface">0</span>
+              </div>
+              <div class="p-4 bg-surface rounded-lg">
+                <span class="block text-xs font-medium text-outline mb-1">Cross-Sell Revenue</span>
+                <span id="r-crosssell" class="text-lg font-bold text-on-surface">&#8364;0</span>
+              </div>
+            </div>
+
+            <!-- Use Case Breakdown -->
+            <div class="mb-10 fade-up fade-up-3">
+              <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Use Case Breakdown</h4>
+              <div id="r-usecases" class="space-y-3"></div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center pt-6 border-t border-outline-variant/10 fade-up fade-up-3">
+              <p class="text-on-surface-variant mb-4">Want a detailed breakdown with scenario comparisons?</p>
+              <a href="#" class="signature-gradient text-white px-8 py-4 rounded-full font-bold inline-flex items-center gap-2 hover:opacity-90 active:scale-95 duration-150 shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined">calendar_month</span>
+                Book a Demo
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -393,63 +416,116 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- Why Zeotap Section -->
+<!-- Why Leading Brands Choose Zeotap -->
 <section class="py-24 px-8 bg-surface-container-low">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-16">
-      <h2 class="text-4xl font-bold mb-4 tracking-tight">Why Zeotap CDP?</h2>
-      <p class="text-on-surface-variant max-w-xl mx-auto">Architecting the future of privacy-first customer engagement with precision data engineering.</p>
+      <h2 class="text-4xl font-bold mb-4 tracking-tight">Why Leading Brands Choose Zeotap</h2>
+      <p class="text-on-surface-variant max-w-2xl mx-auto text-lg">Zeotap redefines what a Customer Data Platform is with unmatched time-to-value, inherent flexibility, superior match rates, and AI-driven decision-making.</p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="md:col-span-2 group bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10 flex flex-col md:flex-row gap-10 items-center overflow-hidden">
-        <div class="flex-1 space-y-6">
-          <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-            <span class="material-symbols-outlined text-3xl">verified_user</span>
-          </div>
-          <h3 class="text-2xl font-bold">Enterprise Data Accuracy</h3>
-          <p class="text-on-surface-variant leading-relaxed">Our patented identity resolution engine achieves up to 98% matching accuracy across fragmented touchpoints, ensuring your ROI calculations translate into executable plans.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+          <span class="material-symbols-outlined text-3xl">rocket_launch</span>
         </div>
-        <div class="flex-1">
-          <img class="rounded-lg shadow-xl group-hover:scale-105 transition-transform duration-500" alt="Data grid visualisation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEsUdFa4D-T0YJzCYmZVRbV9A2GDnRb1tcrrqRzxOkwDLET7Ktmgc8efjPUJLXcn-lHDsyKSYgrvYSqene6ipUNrPLCC9Re0w8lkR9v3XxL9kcNVo0RwYSZVuoCqb_givjzh2AKrVt7f5ISTQQINFXOWGUEcgKVgPakZmMOlgzxB-WkVXdtOr1tMN87jrEadhkSGxuqeEZZYdIqmUAJ6sQexwA1ywpZYC0zhzQHqFhGHgJ4Oq18RcxO9uAGRk55a5LChwxAzC2S2E"/>
-        </div>
+        <h3 class="text-2xl font-bold mb-4">Faster Time-to-Value</h3>
+        <p class="text-on-surface-variant leading-relaxed">With ZeoAI handling setup, onboarding, data mapping, and catalogue creation, marketers can cut deployment time by 3x compared to best-of-suite CDPs.</p>
       </div>
-      <div class="bg-primary p-10 rounded-xl text-white ambient-shadow relative overflow-hidden flex flex-col justify-between">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-        <div class="z-10">
-          <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
-            <span class="material-symbols-outlined text-3xl">psychology</span>
-          </div>
-          <h3 class="text-2xl font-bold mb-4">Unified 360&deg; View</h3>
-          <p class="text-primary-fixed/80 leading-relaxed mb-8">Move from silos to a single customer view that empowers real-time personalisation at scale.</p>
+      <div class="bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+          <span class="material-symbols-outlined text-3xl">link</span>
         </div>
-        <a class="inline-flex items-center font-bold gap-2 text-white group z-10" href="#">
-          Explore Insights <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
-        </a>
+        <h3 class="text-2xl font-bold mb-4">Better Match Rates</h3>
+        <p class="text-on-surface-variant leading-relaxed">Zeotap's unique ability to enrich customer profiles with verified and consented identifiers elevates match rates, ensuring ad budgets are spent wisely.</p>
       </div>
-      <div class="bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10 flex flex-col justify-between">
-        <div class="w-14 h-14 rounded-2xl bg-secondary-container/30 flex items-center justify-center text-secondary mb-6">
-          <span class="material-symbols-outlined text-3xl">lock</span>
+      <div class="bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+          <span class="material-symbols-outlined text-3xl">psychology</span>
         </div>
-        <div>
-          <h3 class="text-2xl font-bold mb-4">Privacy First</h3>
-          <p class="text-on-surface-variant leading-relaxed mb-6">GDPR and CCPA compliance baked into the infrastructure, protecting your brand's integrity while maximising data utility.</p>
-        </div>
+        <h3 class="text-2xl font-bold mb-4">Smarter AI</h3>
+        <p class="text-on-surface-variant leading-relaxed">From enhancing decision-making to optimising data for model training, ZeoAI allows brands to operate with precision.</p>
       </div>
-      <div class="md:col-span-2 bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10 flex flex-col md:flex-row gap-10 items-center">
-        <div class="flex-1 order-2 md:order-1">
-          <img class="rounded-lg shadow-lg" alt="Seamless integrations" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8tIsyjz3Zi_vRUUBiqW-exuNa4JeTuAESoY6fBfC1wc_WlbhSR6LSG4TimYynWZJ8IRdYzr6b3q9C6Q53qgbNXtc3UrhH3hz9Wn5DOo5m-A_gZo629wVrikWLEhB4ys2aFJlgaEG03f7vP1j6HhVdr_fDqaHe9MPF2jehPnssm2rlE11oudZgcKDlhwS-MWpy-7Ee7RJat43Mr6eyah6r8-Qe-6s9Eo8k1XAERLcOTQ93GJsMnrGD9Z6laeQH7dYDNbr9-Ei6gms"/>
+      <div class="bg-surface-container-lowest p-10 rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+          <span class="material-symbols-outlined text-3xl">settings_suggest</span>
         </div>
-        <div class="flex-1 order-1 md:order-2 space-y-6">
-          <h3 class="text-2xl font-bold">Seamless Integration</h3>
-          <p class="text-on-surface-variant leading-relaxed">Connect over 100+ platforms including Google Ads, Salesforce, and AWS. Your data flows where it matters most, instantly.</p>
-          <div class="flex gap-4">
-            <div class="w-10 h-10 bg-surface-container-low rounded flex items-center justify-center opacity-60"><span class="material-symbols-outlined">api</span></div>
-            <div class="w-10 h-10 bg-surface-container-low rounded flex items-center justify-center opacity-60"><span class="material-symbols-outlined">cloud</span></div>
-            <div class="w-10 h-10 bg-surface-container-low rounded flex items-center justify-center opacity-60"><span class="material-symbols-outlined">hub</span></div>
-          </div>
-        </div>
+        <h3 class="text-2xl font-bold mb-4">Greater Flexibility</h3>
+        <p class="text-on-surface-variant leading-relaxed">Designed to accommodate any deployment type, integrate with the most utilised platforms, and import data agnostically.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- The Zeotap Effect — Stats -->
+<section class="py-16 px-8 bg-surface">
+  <div class="max-w-7xl mx-auto">
+    <h3 class="text-center text-sm font-bold uppercase tracking-widest text-primary mb-10">The Zeotap Effect</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <div class="p-8 bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="text-5xl font-extrabold text-primary mb-2">46%</div>
+        <p class="text-on-surface font-semibold mb-1">Boost in average basket value</p>
+        <p class="text-sm text-outline">Breuninger</p>
+      </div>
+      <div class="p-8 bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="text-5xl font-extrabold text-primary mb-2">4x</div>
+        <p class="text-on-surface font-semibold mb-1">Higher match rate</p>
+        <p class="text-sm text-outline">Entain</p>
+      </div>
+      <div class="p-8 bg-surface-container-lowest rounded-xl ambient-shadow border border-outline-variant/10">
+        <div class="text-5xl font-extrabold text-primary mb-2">43%</div>
+        <p class="text-on-surface font-semibold mb-1">Increase in conversion rate</p>
+        <p class="text-sm text-outline">Virgin Media O2</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Core Capabilities -->
+<section class="py-24 px-8 bg-surface-container-low">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold mb-4 tracking-tight">Core Capabilities</h2>
+      <p class="text-on-surface-variant max-w-xl mx-auto">Our CDP's strength lies in its core functions.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">account_circle</span>
+        <h4 class="font-bold text-lg mb-2">360&deg; Customer View</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">Raw data is cleansed and unified, providing panoramic customer profiles.</p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">boost</span>
+        <h4 class="font-bold text-lg mb-2">Audience Boost</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">Bridge gaps in customer data with rich, deterministically matched identifiers.</p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">campaign</span>
+        <h4 class="font-bold text-lg mb-2">Omnichannel Orchestration</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">Create highly personalised, cross-channel customer journeys.</p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">bolt</span>
+        <h4 class="font-bold text-lg mb-2">Real-Time Personalisation</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">Customer interactions and attribute changes trigger relevant content and offers.</p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">shield</span>
+        <h4 class="font-bold text-lg mb-2">Privacy &amp; Compliance</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">'Made in Germany' privacy and adherence to all regulatory frameworks.</p>
+      </div>
+      <div class="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10">
+        <span class="material-symbols-outlined text-2xl text-primary mb-4 block">lock</span>
+        <h4 class="font-bold text-lg mb-2">Data Governance &amp; Security</h4>
+        <p class="text-sm text-on-surface-variant leading-relaxed">The most secure environment to gather, store, and share customer data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trusted Brands -->
+<section class="py-10 px-8 bg-surface">
+  <div class="max-w-7xl mx-auto text-center">
+    <p class="text-sm text-outline tracking-wide">Trusted by <strong class="text-on-surface-variant">Virgin</strong>, <strong class="text-on-surface-variant">Sky</strong>, <strong class="text-on-surface-variant">McDonald's</strong>, <strong class="text-on-surface-variant">Douglas</strong>, <strong class="text-on-surface-variant">Ford</strong>, <strong class="text-on-surface-variant">Rewe</strong>, and more</p>
   </div>
 </section>
 
@@ -458,12 +534,9 @@ tailwind.config = {
   <div class="max-w-4xl mx-auto text-center px-8 py-16 rounded-3xl signature-gradient text-white ambient-shadow relative overflow-hidden">
     <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
     <div class="relative z-10">
-      <h2 class="text-4xl font-bold mb-6">Ready to realise your data's true value?</h2>
-      <p class="text-primary-fixed/90 text-lg mb-10 max-w-2xl mx-auto">Join leading global brands and start driving significant business growth with the world's most trusted CDP.</p>
-      <div class="flex flex-col sm:flex-row justify-center gap-4">
-        <button class="bg-white text-primary px-10 py-4 rounded-full font-bold hover:bg-surface-container-low transition-colors shadow-xl">Book a Demo</button>
-        <button class="border-2 border-white/30 text-white px-10 py-4 rounded-full font-bold hover:bg-white/10 transition-colors">View Case Studies</button>
-      </div>
+      <h2 class="text-4xl font-bold mb-6">Take the First Step Toward Data-Driven Growth</h2>
+      <p class="text-primary-fixed/90 text-lg mb-10 max-w-2xl mx-auto">Join other trailblazers turning their customer data into a business engine.</p>
+      <button class="bg-white text-primary px-10 py-4 rounded-full font-bold hover:bg-surface-container-low transition-colors shadow-xl">Book a Demo</button>
     </div>
   </div>
 </section>
@@ -475,7 +548,7 @@ tailwind.config = {
   <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto font-body text-sm text-slate-500">
     <div class="mb-8 md:mb-0">
       <div class="text-lg font-bold text-slate-900 dark:text-white mb-2">Zeotap CDP</div>
-      <p>&copy; 2025 Zeotap GmbH. All rights reserved.</p>
+      <p>&copy; 2026 Zeotap GmbH. All rights reserved.</p>
     </div>
     <div class="flex flex-wrap justify-center gap-8">
       <a class="text-slate-500 hover:text-blue-600 hover:underline" href="#">Privacy Policy</a>
@@ -545,6 +618,8 @@ function setCurrency(c) {
       : 'flex-1 py-3 rounded-xl font-semibold text-sm transition-all bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high';
   });
   document.getElementById('s2-rev-symbol').textContent = SYMBOLS[c];
+  const s3sym = document.getElementById('s3-currency-sym');
+  if (s3sym) s3sym.textContent = SYMBOLS[c];
   if (currentStep === 3) calculate();
 }
 
@@ -614,12 +689,33 @@ document.getElementById('s3-arpc').addEventListener('input', () => { arpcManuall
   document.getElementById(id).addEventListener('input', () => { calculate(); });
 });
 
-function toggleEditInputs() {
-  const panel = document.getElementById('edit-panel');
-  const chevron = document.getElementById('edit-chevron');
-  panel.classList.toggle('hidden');
-  chevron.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+// ═══════════════════════════════════════
+//  STEP 3 REVENUE/CUSTOMERS INPUTS
+// ═══════════════════════════════════════
+function syncS3Sliders() {
+  const rev = parseNum(document.getElementById('s3-revenue').value);
+  document.getElementById('s3-revenue-slider').value = valueToSlider(rev, REVENUE_MIN, REVENUE_MAX);
+  const cust = parseNum(document.getElementById('s3-customers').value);
+  document.getElementById('s3-customers-slider').value = valueToSlider(cust, CUSTOMERS_MIN, CUSTOMERS_MAX);
 }
+
+// S3 revenue input ↔ slider
+document.getElementById('s3-revenue').addEventListener('blur', function() { formatInputValue(this); syncS3Sliders(); deriveARPC(); calculate(); });
+document.getElementById('s3-revenue').addEventListener('focus', function() { const raw = parseNum(this.value); if (raw > 0) this.value = raw; });
+document.getElementById('s3-revenue-slider').addEventListener('input', function() {
+  const val = sliderToValue(parseInt(this.value), REVENUE_MIN, REVENUE_MAX);
+  document.getElementById('s3-revenue').value = fmtNum(val);
+  deriveARPC(); calculate();
+});
+
+// S3 customers input ↔ slider
+document.getElementById('s3-customers').addEventListener('blur', function() { formatInputValue(this); syncS3Sliders(); deriveARPC(); calculate(); });
+document.getElementById('s3-customers').addEventListener('focus', function() { const raw = parseNum(this.value); if (raw > 0) this.value = raw; });
+document.getElementById('s3-customers-slider').addEventListener('input', function() {
+  const val = sliderToValue(parseInt(this.value), CUSTOMERS_MIN, CUSTOMERS_MAX);
+  document.getElementById('s3-customers').value = fmtNum(val);
+  deriveARPC(); calculate();
+});
 
 // ═══════════════════════════════════════
 //  STEP NAVIGATION
@@ -646,8 +742,22 @@ function goToStep(step) {
     document.getElementById('prog-1').style.width = step >= 2 ? '100%' : '0%';
     document.getElementById('prog-2').style.width = step >= 3 ? '100%' : '0%';
 
-    // Calculate on reaching step 3
+    // Widen container for Step 3 two-column layout
+    const container = document.getElementById('steps-container');
     if (step === 3) {
+      container.classList.remove('max-w-2xl');
+      container.classList.add('max-w-7xl');
+    } else {
+      container.classList.remove('max-w-7xl');
+      container.classList.add('max-w-2xl');
+    }
+
+    // Sync Step 2 values into Step 3 inputs when entering Step 3
+    if (step === 3) {
+      document.getElementById('s3-revenue').value = document.getElementById('s2-revenue').value;
+      document.getElementById('s3-customers').value = document.getElementById('s2-customers').value;
+      document.getElementById('s3-currency-sym').textContent = SYMBOLS[currency];
+      syncS3Sliders();
       deriveARPC();
       calculate();
     }
@@ -661,8 +771,8 @@ function goToStep(step) {
 // ═══════════════════════════════════════
 function deriveARPC() {
   if (arpcManuallyEdited) return;
-  const rev = parseNum(document.getElementById('s2-revenue').value);
-  const cust = parseNum(document.getElementById('s2-customers').value);
+  const rev = parseNum(document.getElementById('s3-revenue').value || document.getElementById('s2-revenue').value);
+  const cust = parseNum(document.getElementById('s3-customers').value || document.getElementById('s2-customers').value);
   if (rev > 0 && cust > 0) {
     const derived = rev / cust;
     document.getElementById('s3-arpc').value = derived >= 10 ? Math.round(derived) : derived.toFixed(2);
@@ -675,8 +785,8 @@ function deriveARPC() {
 function calculate() {
   if (!selectedIndustry) return;
   const b = BENCHMARKS[selectedIndustry];
-  const revenue = parseNum(document.getElementById('s2-revenue').value);
-  const customers = parseNum(document.getElementById('s2-customers').value);
+  const revenue = parseNum(document.getElementById('s3-revenue').value || document.getElementById('s2-revenue').value);
+  const customers = parseNum(document.getElementById('s3-customers').value || document.getElementById('s2-customers').value);
   if (revenue <= 0 || customers <= 0) return;
 
   const churnRate = (parseFloat(document.getElementById('s3-churn').value) || (b.churnRate * 100)) / 100;
